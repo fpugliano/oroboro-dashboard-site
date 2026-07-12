@@ -8,9 +8,9 @@
 <meta name="keywords" content="marine dashboard, Signal K dashboard, Raspberry Pi boat computer, OpenPlotter, NMEA 2000 dashboard, sailing instruments, anchor watch app, AIS proximity alarm, Victron alternative, polar performance sailing">
 <meta property="og:title" content="Oroboro Dashboard — Build your own boat instrument panel">
 <meta property="og:description" content="A free, open-source marine dashboard on a Raspberry Pi. Instruments, anchor watch, AIS collision monitoring, polar performance. Built by a real sailor.">
-<meta property="og:url" content="https://dashboard.sailingoroboro.com">
+<meta property="og:url" content="https://build.sailingoroboro.com">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://dashboard.sailingoroboro.com/screenshots/dashboard-main.jpg">
+<meta property="og:image" content="https://build.sailingoroboro.com/screenshots/TabletView.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -186,18 +186,29 @@ section{padding:clamp(56px,9vw,120px) 0}
   font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.03em;
   padding:5px 12px;border:1px solid var(--hair);border-radius:20px;color:var(--paper-dim);
 }
-.feature-shot img{
-  width:100%;border-radius:12px;border:1px solid var(--hair);
-  box-shadow:0 20px 50px -24px rgba(0,0,0,0.7);
-}
-.feature-shot.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.feature-shot.trio img{border-radius:8px}
+.feature-shot img{width:100%;height:auto;display:block}
+/* landscape screenshots (tablet/grafana) get a framed card; phone PNGs are pre-framed */
+.feature-shot.framed img{border-radius:12px;border:1px solid var(--hair);box-shadow:0 20px 50px -24px rgba(0,0,0,0.7)}
+.feature-shot.phone{display:flex;justify-content:center}
+.feature-shot.phone img{max-width:290px;filter:drop-shadow(0 26px 46px rgba(0,0,0,0.55))}
+.feature-shot.phone.angled img{max-width:330px}
+.feature-shot.duo{display:flex;gap:0;justify-content:center;align-items:flex-end}
+.feature-shot.duo img{max-width:210px}
+.feature-shot.duo img:first-child{margin-right:-40px;margin-bottom:24px;position:relative;z-index:1}
+.feature-shot.duo img:last-child{max-width:230px}
 @media(max-width:760px){
   .feature,.feature.flip{grid-template-columns:1fr}
   .feature.flip .feature-text{order:0}
 }
 
 /* ─── Feature grid (small) ──────────────────────────────────────── */
+.accent-band{background:linear-gradient(160deg,var(--panel) 0%,var(--ink) 100%);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);overflow:hidden}
+.accent-inner{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+.accent-text h3{font-size:clamp(24px,3.4vw,36px);font-weight:600;margin-top:12px}
+.accent-text p{color:var(--paper-dim);margin-top:16px;font-size:17px}
+.accent-shot{display:flex;justify-content:center}
+.accent-shot img{max-width:340px;width:100%;filter:drop-shadow(0 30px 50px rgba(0,0,0,0.55))}
+@media(max-width:760px){.accent-inner{grid-template-columns:1fr}}
 .grid-head{text-align:center;margin-bottom:48px}
 .grid-head h2{font-size:clamp(28px,4.4vw,44px)}
 .grid-head p{color:var(--paper-dim);max-width:560px;margin:14px auto 0}
@@ -344,8 +355,8 @@ code.inline{font-family:'Spline Sans Mono',monospace;font-size:0.88em;background
         <div class="hstat"><div class="n">24/7</div><div class="l">Anchor &amp; AIS watch</div></div>
         <div class="hstat"><div class="n">0</div><div class="l">Subscriptions</div></div>
       </div>
-      <div class="hero-shot">
-        <img src="screenshots/dashboard-main.jpg" alt="The Oroboro dashboard main view — wind rose, speed, depth, battery and solar readouts on a dark instrument panel">
+      <div class="hero-shot framed">
+        <img src="screenshots/TabletView.jpg" alt="The Oroboro dashboard on a nav-station tablet — wind rose, speed, depth, water tanks, house bank and solar readouts on a dark instrument panel">
         <div class="caption mono">Live at anchor · Paros, Cyclades</div>
       </div>
     </div>
@@ -393,10 +404,8 @@ code.inline{font-family:'Spline Sans Mono',monospace;font-size:0.88em;background
         <p>Drop the hook, set an allowed circle — or a directional sector for a tight spot — and the Pi watches your swing all night. Drift outside the zone and your phone alarms, sent straight from the boat whether or not you're aboard. Because the alarm runs on the Pi, not the browser, it reaches you ashore at the taverna too.</p>
         <div class="tags"><span class="tag">GPS swing track</span><span class="tag">Pushover alarms</span><span class="tag">Works offline</span></div>
       </div>
-      <div class="feature-shot trio">
-        <img src="screenshots/anchor-watch-main.png" alt="Anchor watch map">
-        <img src="screenshots/anchor-set-distance.png" alt="Setting the allowed distance">
-        <img src="screenshots/anchor-advanced-zone.png" alt="Advanced directional zone">
+      <div class="feature-shot phone">
+        <img src="screenshots/IMG_anchor-portrait.png" alt="Anchor watch on a phone — allowed zone circle, boat swing track, and nearby AIS vessels on the map">
       </div>
     </div>
 
@@ -407,8 +416,35 @@ code.inline{font-family:'Spline Sans Mono',monospace;font-size:0.88em;background
         <p>Guardian watches every AIS-equipped vessel around you, day and night. A boat enters your zone — or drags down onto you at 3 a.m. — and it records a full breadcrumb track, closest approach, and top speed, then alarms your phone. Every encounter is saved as a timestamped incident report you can hand to a harbourmaster or insurer. Nearby boats even leave visible swing-arcs, so you see how the whole anchorage lies.</p>
         <div class="tags"><span class="tag">24/7 on the Pi</span><span class="tag">Incident reports</span><span class="tag">Closing alarms</span></div>
       </div>
-      <div class="feature-shot">
-        <img src="screenshots/history-grafana.png" alt="History and performance graphs in Grafana">
+      <div class="feature-shot phone">
+        <img src="screenshots/IMG_pushover-portrait.png" alt="Guardian push notifications on a phone — vessel-in-zone and anchor-dragging alerts with distance and speed">
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-text">
+        <div class="eyebrow">Polar performance</div>
+        <h3>Sail closer to your boat's best.</h3>
+        <p>Every sail is logged and scored against a VPP target polar for your hull. See live VMG versus target, a colour-coded performance heat-map of your track — green where you're sailing well, red where there's speed left on the table — and your personal-best envelope building up over the season. It turns a day on the water into something you can actually learn from.</p>
+        <div class="tags"><span class="tag">VPP target polar</span><span class="tag">Track heat-map</span><span class="tag">Personal bests</span></div>
+      </div>
+      <div class="feature-shot duo">
+        <img src="screenshots/IMG_polarVPP-portrait.png" alt="Polar performance screen — VPP polar diagram with live wind and VMG readouts">
+        <img src="screenshots/IMG_polarmap-portrait.png" alt="Track heat-map — the sailed route coloured by percentage of polar target">
+      </div>
+    </div>
+  </section>
+
+  <!-- Angled accent band: on any screen -->
+  <section class="accent-band">
+    <div class="wrap accent-inner">
+      <div class="accent-text">
+        <div class="eyebrow">One panel, any screen</div>
+        <h3>Nav station, cockpit tablet, or the phone in your pocket.</h3>
+        <p>It's a web dashboard, so it runs anywhere with a browser — a fixed screen at the chart table, a tablet in the cockpit, your phone at anchor. Same live data, no app to install, shared across the whole crew.</p>
+      </div>
+      <div class="accent-shot">
+        <img src="screenshots/IMG_home-left.png" alt="The Oroboro dashboard shown at an angle on an iPhone — wind rose, speed, depth, battery and solar">
       </div>
     </div>
   </section>
