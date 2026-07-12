@@ -2,7 +2,7 @@
 
 Showcase + build guide for the [Oroboro Dashboard](https://github.com/fpugliano/oroboro-dashboard), a free open-source marine instrument panel for Raspberry Pi.
 
-Live at **https://build.sailingoroboro.com**
+Live at **https://dashboard.sailingoroboro.com**
 
 ## Hosting
 
@@ -10,7 +10,7 @@ Static site on GitHub Pages. Two sections (Showcase / Build Guide) in a single `
 
 ## Custom domain
 
-The `CNAME` file points the site at `build.sailingoroboro.com`. In your DNS, add a CNAME record for the `dashboard` subdomain pointing to `fpugliano.github.io` (or the four GitHub Pages A records for an apex — but a subdomain uses CNAME).
+The `CNAME` file points the site at `dashboard.sailingoroboro.com`. In your DNS, add a CNAME record for the `dashboard` subdomain pointing to `fpugliano.github.io` (or the four GitHub Pages A records for an apex — but a subdomain uses CNAME).
 
 ## Local preview
 
