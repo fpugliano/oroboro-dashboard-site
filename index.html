@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oroboro Dashboard — Build your own boat instrument panel</title>
+<meta name="description" content="A free, open-source marine instrument dashboard you build yourself on a Raspberry Pi. Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and sailing-performance analysis. Runs on a €50 Pi. Built by a liveaboard sailor.">
+<meta name="keywords" content="marine dashboard, Signal K dashboard, Raspberry Pi boat computer, OpenPlotter, NMEA 2000 dashboard, sailing instruments, anchor watch app, AIS proximity alarm, Victron alternative, polar performance sailing">
+<meta property="og:title" content="Oroboro Dashboard — Build your own boat instrument panel">
+<meta property="og:description" content="A free, open-source marine dashboard on a Raspberry Pi. Instruments, anchor watch, AIS collision monitoring, polar performance. Built by a real sailor.">
+<meta property="og:url" content="https://dashboard.sailingoroboro.com">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://dashboard.sailingoroboro.com/screenshots/dashboard-main.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Spline+Sans+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Palette — cockpit at dusk: deep instrument navy, brass, phosphor cyan, chart paper */
+  --ink:#0a1119;            /* deepest background — the night helm */
+  --panel:#101c28;          /* raised instrument panel */
+  --panel-2:#162634;        /* card surface */
+  --hair:#22384a;           /* hairline / bezel */
+  --brass:#c8a668;          /* brass fittings — the warm accent */
+  --brass-bright:#e2c489;
+  --phosphor:#4fd1c5;       /* instrument phosphor cyan — live-data glow */
+  --sea:#5aa9d6;            /* chart-water blue */
+  --paper:#f2ede1;          /* chart-paper / light text */
+  --paper-dim:#a8b4bf;      /* dimmed body text */
+  --paper-faint:#6b7a86;    /* captions */
+  --warn:#e0994f;           /* amber warning */
+  --good:#5ec27a;           /* green ok */
+  --maxw:1180px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Rajdhani',system-ui,sans-serif;
+  font-size:18px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:var(--brass);color:var(--ink)}
+
+/* ─── Typographic scale ─────────────────────────────────────────── */
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:500;line-height:1.08;letter-spacing:-0.01em}
+.mono{font-family:'Spline Sans Mono',monospace}
+.eyebrow{
+  font-family:'Spline Sans Mono',monospace;
+  font-size:12px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--brass);font-weight:500;
+}
+a{color:inherit;text-decoration:none}
+
+/* ─── Top nav ───────────────────────────────────────────────────── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(16px,4vw,40px);
+  background:rgba(10,17,25,0.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--hair);
+}
+.nav-brand{display:flex;align-items:center;gap:11px;font-family:'Spline Sans Mono',monospace;font-weight:600;letter-spacing:0.02em;font-size:15px}
+.nav-brand .serpent{width:26px;height:26px;flex-shrink:0}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-tab{
+  font-family:'Spline Sans Mono',monospace;font-size:13px;letter-spacing:0.04em;
+  padding:8px 15px;border-radius:8px;color:var(--paper-dim);
+  cursor:pointer;transition:.18s;border:1px solid transparent;background:none;
+}
+.nav-tab:hover{color:var(--paper)}
+.nav-tab.active{color:var(--ink);background:var(--brass);border-color:var(--brass);font-weight:600}
+.nav-ext{
+  font-family:'Spline Sans Mono',monospace;font-size:13px;
+  padding:8px 14px;border:1px solid var(--hair);border-radius:8px;color:var(--paper-dim);
+  transition:.18s;
+}
+.nav-ext:hover{border-color:var(--brass);color:var(--paper)}
+@media(max-width:640px){
+  .nav-ext{display:none}
+  .nav-tab{padding:7px 11px;font-size:12px}
+  .nav-brand span{display:none}
+}
+
+/* ─── View switching ────────────────────────────────────────────── */
+.view{display:none;padding-top:64px}
+.view.active{display:block;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ─── Section frame ─────────────────────────────────────────────── */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+section{padding:clamp(56px,9vw,120px) 0}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--hair) 20%,var(--hair) 80%,transparent)}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero{
+  position:relative;
+  padding:clamp(70px,12vw,150px) 0 clamp(48px,7vw,90px);
+  overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);
+  background-size:44px 44px;
+  opacity:0.06;
+  mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 40%,transparent 80%);
+}
+.hero-inner{position:relative;text-align:center;max-width:900px;margin:0 auto}
+.hero h1{
+  font-size:clamp(38px,6.6vw,76px);font-weight:600;
+  margin:22px 0 0;
+}
+.hero h1 .glow{color:var(--phosphor)}
+.hero-sub{
+  font-size:clamp(18px,2.2vw,23px);color:var(--paper-dim);
+  max-width:640px;margin:22px auto 0;line-height:1.5;
+}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:38px}
+.btn{
+  font-family:'Spline Sans Mono',monospace;font-size:15px;letter-spacing:0.02em;font-weight:500;
+  padding:14px 26px;border-radius:10px;cursor:pointer;transition:.2s;
+  display:inline-flex;align-items:center;gap:9px;border:1px solid transparent;
+}
+.btn-primary{background:var(--brass);color:var(--ink);font-weight:600}
+.btn-primary:hover{background:var(--brass-bright);transform:translateY(-2px)}
+.btn-ghost{border-color:var(--hair);color:var(--paper)}
+.btn-ghost:hover{border-color:var(--brass);transform:translateY(-2px)}
+.hero-stats{
+  display:flex;gap:clamp(20px,5vw,64px);justify-content:center;flex-wrap:wrap;
+  margin-top:52px;padding-top:34px;border-top:1px solid var(--hair);
+}
+.hstat{text-align:center}
+.hstat .n{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:600;color:var(--brass);line-height:1}
+.hstat .l{font-family:'Spline Sans Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--paper-faint);margin-top:8px}
+
+.hero-shot{
+  position:relative;max-width:960px;margin:clamp(40px,6vw,72px) auto 0;
+}
+.hero-shot img{
+  width:100%;border-radius:14px;border:1px solid var(--hair);
+  box-shadow:0 30px 80px -30px rgba(0,0,0,0.8),0 0 0 1px rgba(200,166,104,0.08);
+}
+.hero-shot .caption{
+  position:absolute;bottom:-13px;left:50%;transform:translateX(-50%);
+  background:var(--panel);border:1px solid var(--hair);border-radius:20px;
+  padding:5px 16px;font-family:'Spline Sans Mono',monospace;font-size:11px;
+  letter-spacing:0.08em;color:var(--paper-dim);white-space:nowrap;
+}
+
+/* ─── Problem/pitch band ────────────────────────────────────────── */
+.pitch{background:var(--panel);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.pitch h2{font-size:clamp(28px,4.4vw,46px);max-width:720px}
+.pitch-lead{color:var(--paper-dim);font-size:clamp(18px,2.3vw,22px);max-width:640px;margin-top:20px}
+.compare{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:44px;
+  background:var(--hair);border:1px solid var(--hair);border-radius:14px;overflow:hidden;
+}
+.compare>div{background:var(--panel-2);padding:clamp(20px,3vw,32px)}
+.compare h3{font-size:20px;font-family:'Spline Sans Mono',monospace;font-weight:600;letter-spacing:0.02em;margin-bottom:16px;display:flex;align-items:center;gap:9px}
+.compare .them h3{color:var(--paper-faint)}
+.compare .us h3{color:var(--brass)}
+.compare ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.compare li{font-size:15.5px;color:var(--paper-dim);padding-left:26px;position:relative;line-height:1.45}
+.compare li::before{position:absolute;left:0;top:0;font-family:'Spline Sans Mono',monospace}
+.compare .them li::before{content:'✕';color:var(--paper-faint)}
+.compare .us li::before{content:'✓';color:var(--good)}
+.compare .price{margin-top:18px;padding-top:16px;border-top:1px solid var(--hair);font-family:'Spline Sans Mono',monospace;font-size:14px}
+.compare .them .price{color:var(--paper-faint)}
+.compare .us .price{color:var(--brass-bright)}
+@media(max-width:680px){.compare{grid-template-columns:1fr}}
+
+/* ─── Feature sections ──────────────────────────────────────────── */
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,5vw,64px);align-items:center}
+.feature.flip .feature-text{order:2}
+.feature+.feature{margin-top:clamp(56px,8vw,104px)}
+.feature-text .eyebrow{margin-bottom:14px}
+.feature-text h3{font-size:clamp(26px,3.6vw,38px);font-weight:600}
+.feature-text p{color:var(--paper-dim);margin-top:16px;font-size:17px}
+.feature-text .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.tag{
+  font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.03em;
+  padding:5px 12px;border:1px solid var(--hair);border-radius:20px;color:var(--paper-dim);
+}
+.feature-shot img{
+  width:100%;border-radius:12px;border:1px solid var(--hair);
+  box-shadow:0 20px 50px -24px rgba(0,0,0,0.7);
+}
+.feature-shot.trio{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.feature-shot.trio img{border-radius:8px}
+@media(max-width:760px){
+  .feature,.feature.flip{grid-template-columns:1fr}
+  .feature.flip .feature-text{order:0}
+}
+
+/* ─── Feature grid (small) ──────────────────────────────────────── */
+.grid-head{text-align:center;margin-bottom:48px}
+.grid-head h2{font-size:clamp(28px,4.4vw,44px)}
+.grid-head p{color:var(--paper-dim);max-width:560px;margin:14px auto 0}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.fcard{
+  background:var(--panel-2);border:1px solid var(--hair);border-radius:14px;
+  padding:26px 24px;transition:.2s;
+}
+.fcard:hover{border-color:var(--brass);transform:translateY(-3px)}
+.fcard .ic{width:38px;height:38px;margin-bottom:16px;color:var(--phosphor)}
+.fcard h4{font-family:'Spline Sans Mono',monospace;font-size:16px;font-weight:600;letter-spacing:0.01em;margin-bottom:8px;color:var(--paper)}
+.fcard p{font-size:14.5px;color:var(--paper-dim);line-height:1.5}
+@media(max-width:820px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.fgrid{grid-template-columns:1fr}}
+
+/* ─── Founder quote ─────────────────────────────────────────────── */
+.founder{background:var(--panel);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.founder-inner{max-width:820px;margin:0 auto;text-align:center}
+.founder blockquote{
+  font-family:'Fraunces',serif;font-size:clamp(21px,3vw,31px);font-weight:400;
+  line-height:1.4;color:var(--paper);font-style:italic;
+}
+.founder blockquote::before{content:'“';color:var(--brass);font-size:1.4em;line-height:0;vertical-align:-0.35em;margin-right:2px}
+.founder .by{margin-top:26px;font-family:'Spline Sans Mono',monospace;font-size:14px;color:var(--paper-dim)}
+.founder .by strong{color:var(--brass);font-weight:600}
+
+/* ─── CTA band ──────────────────────────────────────────────────── */
+.cta-band{text-align:center}
+.cta-band h2{font-size:clamp(30px,5vw,52px);max-width:680px;margin:0 auto}
+.cta-band p{color:var(--paper-dim);margin:18px auto 0;max-width:520px}
+.cta-band .hero-cta{margin-top:34px}
+.cta-fine{margin-top:22px;font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.06em;color:var(--paper-faint)}
+
+/* ═══ BUILD GUIDE VIEW ══════════════════════════════════════════ */
+.guide-hero{padding:clamp(48px,7vw,84px) 0 clamp(30px,4vw,48px);text-align:center}
+.guide-hero h1{font-size:clamp(32px,5.2vw,58px);font-weight:600}
+.guide-hero p{color:var(--paper-dim);max-width:620px;margin:18px auto 0;font-size:19px}
+
+.guide-layout{display:grid;grid-template-columns:230px 1fr;gap:clamp(28px,4vw,56px);align-items:start}
+.toc{
+  position:sticky;top:88px;
+  font-family:'Spline Sans Mono',monospace;font-size:13px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.toc a{padding:7px 12px;border-radius:7px;color:var(--paper-dim);border-left:2px solid transparent;transition:.15s}
+.toc a:hover{color:var(--paper);background:var(--panel)}
+.toc a.on{color:var(--brass);border-left-color:var(--brass);background:var(--panel)}
+.toc .toc-sec{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-faint);padding:14px 12px 6px}
+@media(max-width:860px){
+  .guide-layout{grid-template-columns:1fr}
+  .toc{position:static;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:20px;border-bottom:1px solid var(--hair);margin-bottom:12px}
+  .toc .toc-sec{width:100%;padding:8px 0 2px}
+  .toc a{border-left:none;border:1px solid var(--hair)}
+}
+
+.step{scroll-margin-top:88px;padding:clamp(28px,4vw,44px) 0;border-bottom:1px solid var(--hair)}
+.step:last-child{border-bottom:none}
+.step-n{
+  font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.14em;
+  color:var(--brass);text-transform:uppercase;
+}
+.step h2{font-size:clamp(24px,3.4vw,34px);font-weight:600;margin:8px 0 16px}
+.step h3{font-family:'Spline Sans Mono',monospace;font-size:17px;font-weight:600;color:var(--paper);margin:26px 0 10px}
+.step p{color:var(--paper-dim);margin:12px 0;font-size:16.5px}
+.step ul,.step ol{color:var(--paper-dim);margin:12px 0 12px 4px;padding-left:22px;font-size:16px}
+.step li{margin:7px 0}
+.step strong{color:var(--paper);font-weight:600}
+.step a.link{color:var(--phosphor);border-bottom:1px solid rgba(79,209,197,0.35)}
+.step a.link:hover{border-bottom-color:var(--phosphor)}
+
+.callout{
+  border-left:3px solid var(--brass);background:var(--panel);
+  padding:16px 20px;border-radius:0 10px 10px 0;margin:20px 0;
+}
+.callout .k{font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--brass);display:block;margin-bottom:6px}
+.callout p{margin:0;color:var(--paper-dim);font-size:15.5px}
+.callout.warn{border-left-color:var(--warn)}
+.callout.warn .k{color:var(--warn)}
+
+pre{
+  background:#0b141d;border:1px solid var(--hair);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:16px 0;
+  font-family:'Spline Sans Mono',monospace;font-size:13.5px;line-height:1.7;
+  color:var(--phosphor);
+}
+pre .c{color:var(--paper-faint)}
+code.inline{font-family:'Spline Sans Mono',monospace;font-size:0.88em;background:var(--panel-2);padding:2px 7px;border-radius:5px;color:var(--brass-bright);border:1px solid var(--hair)}
+
+.costs{width:100%;border-collapse:collapse;margin:18px 0;font-size:15px}
+.costs th,.costs td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--hair)}
+.costs th{font-family:'Spline Sans Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper-faint)}
+.costs td{color:var(--paper-dim)}
+.costs td:nth-child(2){font-family:'Spline Sans Mono',monospace;color:var(--brass-bright);white-space:nowrap}
+.costs .total td{border-top:2px solid var(--brass);border-bottom:none;color:var(--paper);font-weight:600;padding-top:14px}
+.costs .total td:nth-child(2){color:var(--brass)}
+
+/* ─── Footer ────────────────────────────────────────────────────── */
+.foot{border-top:1px solid var(--hair);padding:40px 0;text-align:center}
+.foot-links{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;font-family:'Spline Sans Mono',monospace;font-size:13px;margin-bottom:18px}
+.foot-links a{color:var(--paper-dim);transition:.15s}
+.foot-links a:hover{color:var(--brass)}
+.foot .made{font-family:'Spline Sans Mono',monospace;font-size:12.5px;color:var(--paper-faint)}
+.foot .made a{color:var(--brass)}
+
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:12px;top:12px;position:fixed;z-index:200;background:var(--brass);color:var(--ink);padding:10px 16px;border-radius:8px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Skip to content</a>
+
+<!-- ─── NAV ─────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="#" class="nav-brand" onclick="show('showcase');return false">
+    <svg class="serpent" viewBox="86 53 424 414" aria-hidden="true"><path fill="#c8a668" d="M478.8 280.6 L472.5 254.7 L494.5 254.7 Z M297.5 451.7 L271.5 436.0 L297.5 429.7 Z M100.5 254.7 L116.1 228.7 L122.4 254.7 Z M307.0 103.7 C312.2 103.7 316.5 105.3 316.5 107.2 C316.5 109.2 312.2 110.8 307.0 110.8 C301.7 110.8 297.5 109.2 297.5 107.2 C297.5 105.3 301.7 103.7 307.0 103.7 M307.0 65.0 C312.2 65.0 316.5 66.6 316.5 68.6 C316.5 70.5 312.2 72.1 307.0 72.1 C301.7 72.1 297.5 70.5 297.5 68.6 C297.5 66.6 301.7 65.0 307.0 65.0 M481.4 210.0 L481.3 210.2 C466.2 147.2 419.8 96.3 359.5 75 C363.1 81.0 364.6 86.9 364.0 91.7 C363.3 96.5 360.9 104.8 352.3 112.6 C408.8 135.0 448.8 190.2 448.8 254.7 C448.8 339.0 380.4 407.4 296.0 407.4 C211.6 407.4 143.2 339.0 143.2 254.7 C143.2 185.6 189.1 127.2 252.0 108.3 C253.8 109.4 277.5 123.6 310.4 118.0 C344.6 112.1 351.4 97.5 352.4 90.2 C353.3 82.9 341.1 63.8 309.4 58.0 C282.7 53.1 259.5 61.2 245.1 71.1 C176.5 90.0 123.4 146.4 109.3 216.9 L85.7 254.7 L109.3 292.4 C124.2 366.9 182.6 425.7 256.9 441.1 L297.5 466.5 L339.7 440.1 C409.6 423.7 464.6 368.8 481.3 299.0 L481.4 299.3 L509.3 254.7 Z M481.4 210.0"/></svg>
+    <span>OROBORO&nbsp;DASHBOARD</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-tab active" id="tab-showcase" onclick="show('showcase')">Showcase</button>
+    <button class="nav-tab" id="tab-guide" onclick="show('guide')">Build&nbsp;Guide</button>
+    <a class="nav-ext" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ════════════════════ SHOWCASE ════════════════════ -->
+<div class="view active" id="view-showcase">
+
+  <header class="hero">
+    <div class="hero-grid"></div>
+    <div class="wrap hero-inner">
+      <div class="eyebrow">Free &amp; open-source · Signal K · Raspberry Pi</div>
+      <h1>Your boat's instruments,<br>on a <span class="glow">€50 screen</span> you build.</h1>
+      <p class="hero-sub">Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and full sailing-performance analysis — one clean panel, running on a Raspberry Pi in your nav station. No subscription. No cloud you don't control.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="show('guide')">Build it yourself →</button>
+        <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">See the code</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n">€150–250</div><div class="l">Typical build</div></div>
+        <div class="hstat"><div class="n">100%</div><div class="l">Open source</div></div>
+        <div class="hstat"><div class="n">24/7</div><div class="l">Anchor &amp; AIS watch</div></div>
+        <div class="hstat"><div class="n">0</div><div class="l">Subscriptions</div></div>
+      </div>
+      <div class="hero-shot">
+        <img src="screenshots/dashboard-main.jpg" alt="The Oroboro dashboard main view — wind rose, speed, depth, battery and solar readouts on a dark instrument panel">
+        <div class="caption mono">Live at anchor · Paros, Cyclades</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pitch / Victron compare -->
+  <section class="pitch">
+    <div class="wrap">
+      <div class="eyebrow">The honest comparison</div>
+      <h2>A Victron panel shows you Victron. This shows you the whole boat.</h2>
+      <p class="pitch-lead">Victron's GX Touch is excellent — for Victron gear. But your wind, depth, heading, AIS, and tank senders live on the NMEA 2000 network, and the Cerbo barely speaks it. One Raspberry Pi reads <em>everything</em> — and costs a third as much.</p>
+      <div class="compare">
+        <div class="them">
+          <h3>Cerbo GX + GX Touch 50</h3>
+          <ul>
+            <li>Battery, solar, and Victron devices — beautifully</li>
+            <li>Limited NMEA 2000 — no real wind/depth/AIS dashboard</li>
+            <li>No anchor watch with phone alarms</li>
+            <li>No sailing-performance analysis</li>
+            <li>Closed ecosystem, fixed feature set</li>
+          </ul>
+          <div class="price">≈ €530–630 · electrical only</div>
+        </div>
+        <div class="us">
+          <h3>Oroboro Dashboard on a Pi</h3>
+          <ul>
+            <li>Wind, nav, depth, batteries, solar, tanks — one panel</li>
+            <li>Reads the entire NMEA 2000 network via Signal K</li>
+            <li>Anchor watch + AIS Guardian, alarms to your phone</li>
+            <li>Polar performance analyzer built in</li>
+            <li>Open source — change anything, owe nothing</li>
+          </ul>
+          <div class="price">≈ €150–250 · the whole boat</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee features -->
+  <section class="wrap">
+    <div class="feature">
+      <div class="feature-text">
+        <div class="eyebrow">Anchor watch</div>
+        <h3>Sleep easier at anchor.</h3>
+        <p>Drop the hook, set an allowed circle — or a directional sector for a tight spot — and the Pi watches your swing all night. Drift outside the zone and your phone alarms, sent straight from the boat whether or not you're aboard. Because the alarm runs on the Pi, not the browser, it reaches you ashore at the taverna too.</p>
+        <div class="tags"><span class="tag">GPS swing track</span><span class="tag">Pushover alarms</span><span class="tag">Works offline</span></div>
+      </div>
+      <div class="feature-shot trio">
+        <img src="screenshots/anchor-watch-main.png" alt="Anchor watch map">
+        <img src="screenshots/anchor-set-distance.png" alt="Setting the allowed distance">
+        <img src="screenshots/anchor-advanced-zone.png" alt="Advanced directional zone">
+      </div>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <div class="eyebrow">Guardian · AIS proximity watch</div>
+        <h3>A witness that never sleeps.</h3>
+        <p>Guardian watches every AIS-equipped vessel around you, day and night. A boat enters your zone — or drags down onto you at 3 a.m. — and it records a full breadcrumb track, closest approach, and top speed, then alarms your phone. Every encounter is saved as a timestamped incident report you can hand to a harbourmaster or insurer. Nearby boats even leave visible swing-arcs, so you see how the whole anchorage lies.</p>
+        <div class="tags"><span class="tag">24/7 on the Pi</span><span class="tag">Incident reports</span><span class="tag">Closing alarms</span></div>
+      </div>
+      <div class="feature-shot">
+        <img src="screenshots/history-grafana.png" alt="History and performance graphs in Grafana">
+      </div>
+    </div>
+  </section>
+
+  <!-- Small feature grid -->
+  <section class="wrap">
+    <div class="grid-head">
+      <div class="eyebrow">Everything on one panel</div>
+      <h2>Built for the way you actually sail.</h2>
+      <p>Every instrument your NMEA 2000 network already produces, plus the tools cruisers wish came standard.</p>
+    </div>
+    <div class="fgrid">
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M12 12l4-6" stroke-width="2"/></svg>
+        <h4>Wind &amp; nav</h4>
+        <p>True and apparent wind on a clean rose, heading, SOG, COG, depth, and water temperature — the core six at a glance.</p>
+      </div>
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="10" rx="1.5"/><path d="M8 8V6h8v2M9 13h6"/></svg>
+        <h4>Batteries &amp; solar</h4>
+        <p>State of charge, net power in or out, voltage, and solar yield — pulled from Victron over the same network.</p>
+      </div>
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h12v18H6z"/><path d="M6 14h12M9 3v11" opacity="0.5"/></svg>
+        <h4>Tanks</h4>
+        <p>Fresh water, fuel, and waste levels front and centre — with the sender options spelled out for boats that lack them.</p>
+      </div>
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21c-4-3-7-6-7-10a7 7 0 0114 0c0 4-3 7-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>
+        <h4>Anchor watch</h4>
+        <p>Circular or directional zones, live swing track, and phone alarms that fire from the Pi even when you're ashore.</p>
+      </div>
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 12l5-2M12 12l-3 4"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+        <h4>Guardian AIS</h4>
+        <p>24/7 collision and drag watch on other vessels, with breadcrumb tracks and exportable incident reports.</p>
+      </div>
+      <div class="fcard">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20L20 4M4 20h16M4 20V8"/><path d="M8 16l4-5 3 2 4-6" opacity="0.6"/></svg>
+        <h4>Polar performance</h4>
+        <p>A VPP-based analyzer that scores your sailing against target speeds, logs personal bests, and shows a performance heat-map of your track.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Founder -->
+  <section class="founder">
+    <div class="wrap founder-inner">
+      <div class="eyebrow" style="margin-bottom:22px">Built at sea, not in an office</div>
+      <blockquote>I wanted to see my whole boat on one screen — wind, batteries, the anchor holding through the night — without buying a closed box that only spoke to half of it. So I built it on a Raspberry Pi, and now it runs every day aboard Oroboro.</blockquote>
+      <div class="by">— <strong>Francesco</strong> · Skipper, S/V Oroboro · Leopard 40 · Cape Town → Greece</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-band wrap">
+    <div class="eyebrow">Your nav station, upgraded</div>
+    <h2>The whole boat, on one screen you own.</h2>
+    <p>Free, open source, and documented step by step — from which HAT to buy to the final <code class="inline">git push</code>. If you can follow a recipe, you can build this.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="show('guide')">Start the build guide →</button>
+      <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">Browse the repo</a>
+    </div>
+    <div class="cta-fine">CC BY-NC 4.0 · never your only anchor watch or navigation source</div>
+  </section>
+</div>
+
+<!-- ════════════════════ BUILD GUIDE ════════════════════ -->
+<div class="view" id="view-guide">
+  <header class="guide-hero wrap">
+    <div class="eyebrow">The build guide</div>
+    <h1>From a bare Pi to a live panel.</h1>
+    <p>Every step, in order — hardware, wiring, software, and deploy. New to Raspberry Pis and Signal K? This is written for you. The <a class="link" href="https://github.com/fpugliano/oroboro-dashboard/blob/main/README.md" target="_blank" rel="noopener">full README</a> is the deep reference; this is the friendly path through it.</p>
+  </header>
+
+  <div class="wrap guide-layout">
+    <!-- TOC -->
+    <nav class="toc" id="toc">
+      <span class="toc-sec">Plan</span>
+      <a href="#g-cost">What it costs</a>
+      <a href="#g-parts">Parts list</a>
+      <span class="toc-sec">Wire</span>
+      <a href="#g-n2k">NMEA 2000 · the HAT</a>
+      <a href="#g-connect">How it connects</a>
+      <span class="toc-sec">Software</span>
+      <a href="#g-openplotter">Install OpenPlotter</a>
+      <a href="#g-ip">Static IP</a>
+      <a href="#g-victron">Connect Victron</a>
+      <a href="#g-deploy">Deploy the dashboard</a>
+      <a href="#g-anchor">Anchor &amp; Guardian service</a>
+      <a href="#g-history">History &amp; polars</a>
+      <a href="#g-config">Boat specifics</a>
+      <a href="#g-push">Phone alarms</a>
+      <span class="toc-sec">Live</span>
+      <a href="#g-remote">Remote access</a>
+      <a href="#g-done">You're done</a>
+    </nav>
+
+    <!-- Steps -->
+    <div class="guide-steps">
+
+      <div class="step" id="g-cost">
+        <div class="step-n">Plan · 01</div>
+        <h2>What it costs</h2>
+        <p>Approximate street prices, mid-2026 — they drift, so treat them as ballparks. The core electronics come in well under a Victron panel that does less.</p>
+        <table class="costs">
+          <tr><th>Item</th><th>Approx.</th><th>Needed?</th></tr>
+          <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>€60–90</td><td>Yes</td></tr>
+          <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
+          <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
+          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>€20–90</td><td>Yes*</td></tr>
+          <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
+          <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
+          <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
+        </table>
+        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at €170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
+      </div>
+
+      <div class="step" id="g-parts">
+        <div class="step-n">Plan · 02</div>
+        <h2>The parts list</h2>
+        <p>At minimum you need three things: a <strong>Raspberry Pi</strong> (the computer), a way to <strong>power it from the boat's 12 V</strong>, and an <strong>interface to your instrument network</strong>. Everything else — touchscreen, 4G router, Victron cables — extends what you can see and do.</p>
+        <p>The single decision that trips people up is the instrument interface, because it depends on how old your boat's electronics are. That's the next step.</p>
+      </div>
+
+      <div class="step" id="g-n2k">
+        <div class="step-n">Wire · 03</div>
+        <h2>NMEA 2000 — you need a CAN HAT</h2>
+        <p>The Raspberry Pi has no marine-network port of its own, so you add a small board. For a modern boat (roughly 2008 onward — Raymarine SeaTalkng, Garmin, B&amp;G, Simrad) that board is a <strong>CAN bus HAT</strong>.</p>
+        <div class="callout warn">
+          <span class="k">Common mix-up · CAN vs RS485</span>
+          <p>NMEA 2000 runs on the <strong>CAN bus</strong> — so you need a <strong>CAN HAT</strong>, not an RS485 board. RS485/RS422 is the physical layer of the <em>older</em> NMEA 0183 and Seatalk standards. Wiring an RS485 adapter to a NMEA 2000 backbone will not work: wrong signalling. If in doubt and your instruments are post-2008, you want a CAN HAT.</p>
+        </div>
+        <p>The wiring itself is two data wires from the backbone into the HAT:</p>
+        <pre><span class="c"># NMEA 2000 drop cable → CAN HAT</span>
+white  →  CAN-H
+blue   →  CAN-L
+<span class="c"># leave red/black (power) disconnected — the Pi powers the HAT</span></pre>
+        <p><strong>Older boat (pre-2008 NMEA 0183 or Seatalk1)?</strong> Then instead of a CAN HAT you use a USB-to-RS422/RS485 adapter (~€10–25), and OpenPlotter reads the 0183 sentences. The MacArthur HAT handles both worlds if you're mixed.</p>
+      </div>
+
+      <div class="step" id="g-connect">
+        <div class="step-n">Wire · 04</div>
+        <h2>How everything connects</h2>
+        <p>The shape of the system, start to finish:</p>
+        <pre>boat instruments ─┐
+Victron gear ─────┤→ NMEA 2000 backbone →  CAN HAT  →  Raspberry Pi
+AIS / GPS ────────┘                                      │
+                                              Signal K (reads it all)
+                                                         │
+                                          ┌──────────────┼──────────────┐
+                                     this dashboard   InfluxDB       anchor-api
+                                       (the panel)   +  Grafana      (24/7 watch)
+                                                     (history)</pre>
+        <p>Signal K is the translator: it reads every device on the backbone and republishes it in one common format. The dashboard, the history database, and the anchor/AIS watchdog all read from Signal K. A small <strong>WiFi router</strong> ties it together so your phone and cockpit tablet see the same panel.</p>
+      </div>
+
+      <div class="step" id="g-openplotter">
+        <div class="step-n">Software · 05</div>
+        <h2>Install OpenPlotter</h2>
+        <p>OpenPlotter is a ready-made Raspberry Pi image with Signal K already aboard — the fastest way to a working marine server. Flash it to the microSD card with Raspberry Pi Imager, boot the Pi, and you have Signal K running.</p>
+        <ul>
+          <li>Download OpenPlotter and flash it to the SD card</li>
+          <li>Boot the Pi, connect it to your WiFi router</li>
+          <li>Open Signal K's admin panel in a browser at the Pi's address, port 3000</li>
+          <li>Add your CAN (or 0183) connection so Signal K starts seeing instruments</li>
+        </ul>
+        <p>When the Signal K <strong>Data Browser</strong> shows wind, depth, and position updating, your hardware half is done.</p>
+      </div>
+
+      <div class="step" id="g-ip">
+        <div class="step-n">Software · 06</div>
+        <h2>Give the Pi a static IP</h2>
+        <p>So the dashboard always finds the Pi at the same address, pin it down on your router (or in the Pi's network settings). Everything from here assumes a fixed address like <code class="inline">192.168.1.238</code> — use whatever your network gives you and keep it consistent.</p>
+      </div>
+
+      <div class="step" id="g-victron">
+        <div class="step-n">Software · 07</div>
+        <h2>Connect your Victron system</h2>
+        <p>To see batteries and solar, bridge Victron into Signal K. Three paths, depending on your gear:</p>
+        <ul>
+          <li><strong>Already have a Cerbo/GX?</strong> Enable its MQTT output and point Signal K at it.</li>
+          <li><strong>No GX device?</strong> Run Venus OS on a second small Pi with VE.Direct-USB cables — the open-source route to the same data.</li>
+          <li><strong>Direct?</strong> VE.Direct-to-USB straight into the OpenPlotter Pi for simpler systems.</li>
+        </ul>
+        <p>You don't need to buy a Cerbo just for this — the README's "you don't need a Cerbo" section walks through each path in detail.</p>
+      </div>
+
+      <div class="step" id="g-deploy">
+        <div class="step-n">Software · 08</div>
+        <h2>Deploy the dashboard files</h2>
+        <p>The dashboard is a set of HTML files that Signal K serves. Put them in Signal K's public folder and open them in a browser. The repo's README gives the exact copy commands; the essence:</p>
+        <pre><span class="c"># on the Pi — fetch each page into Signal K's public folder</span>
+sudo wget -O /usr/lib/node_modules/signalk-server/public/oroboro.html \
+  https://raw.githubusercontent.com/fpugliano/oroboro-dashboard/main/oroboro.html</pre>
+        <p>Repeat for each page — <code class="inline">anchor.html</code>, <code class="inline">polar.html</code>, <code class="inline">settings.html</code>, and the logo. Then open <code class="inline">http://YOUR-PI-IP:3000/oroboro.html</code> and the panel appears.</p>
+      </div>
+
+      <div class="step" id="g-anchor">
+        <div class="step-n">Software · 09</div>
+        <h2>Anchor &amp; Guardian background service</h2>
+        <p>The anchor watch and the AIS Guardian run as a small always-on service on the Pi — <code class="inline">anchor-api.js</code> — so alarms reach your phone even when no browser is open. Install it to <code class="inline">/home/pi/anchor-api/</code> and register it with systemd so it starts on boot and restarts itself.</p>
+        <pre><span class="c"># after copying anchor-api.js to the Pi</span>
+sudo systemctl restart anchor-api
+sudo systemctl status anchor-api    <span class="c"># expect: active (running)</span></pre>
+        <p>This service is what makes the safety features real: it watches your swing and every AIS vessel around you 24/7, and pushes alarms whether you're at the helm, asleep, or ashore.</p>
+      </div>
+
+      <div class="step" id="g-history">
+        <div class="step-n">Software · 10</div>
+        <h2>History &amp; polar performance</h2>
+        <p>For graphs over time and the sailing-performance analyzer, add <strong>InfluxDB</strong> (stores the data) and <strong>Grafana</strong> (draws the history graphs). Signal K's InfluxDB plugin logs everything; Grafana visualises it; the polar page reads back your speed-vs-wind history to score your sailing. The README covers the tokens and settings step by step.</p>
+      </div>
+
+      <div class="step" id="g-config">
+        <div class="step-n">Software · 11</div>
+        <h2>Configure your boat's specifics</h2>
+        <p>One file, <code class="inline">config.js</code>, holds your boat's details — network addresses, your Pushover keys, your polar targets. It stays on the Pi and never goes into the public repo, so your secrets are yours. Set it once and the whole dashboard picks it up.</p>
+      </div>
+
+      <div class="step" id="g-push">
+        <div class="step-n">Software · 12</div>
+        <h2>Phone alarms with Pushover</h2>
+        <p>Anchor-drag and Guardian alarms reach your phone via <a class="link" href="https://pushover.net" target="_blank" rel="noopener">Pushover</a> — a one-time small purchase, no subscription. Create an account, paste your user and API keys into the Pi's config, and the background service does the rest. Because the alarm is sent from the Pi, it works as long as the Pi has internet — even with your phone locked and every browser closed.</p>
+      </div>
+
+      <div class="step" id="g-remote">
+        <div class="step-n">Live · 13</div>
+        <h2>See it from anywhere</h2>
+        <p>Add <strong>Tailscale</strong> (free tier) and the Pi joins a private network you can reach from your phone anywhere with signal — no port-forwarding, no exposed ports. Check your batteries from the beach, watch the anchor hold from dinner ashore. The anchor and Guardian alarms run independently on the Pi regardless, so they protect the boat whether or not you're connected.</p>
+      </div>
+
+      <div class="step" id="g-done">
+        <div class="step-n">Live · 14</div>
+        <h2>You're done — go sailing</h2>
+        <p>That's the whole build: a Raspberry Pi reading your entire boat, a clean panel on any screen, a 24/7 anchor and collision watch in your pocket, and performance analysis that turns every sail into data. All of it yours, all of it free, none of it locked to anyone's cloud.</p>
+        <p>Hit a snag, or built something you're proud of? <a class="link" href="https://github.com/fpugliano/oroboro-dashboard/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> — the project is alive and the fleet is growing.</p>
+        <div class="hero-cta" style="margin-top:28px">
+          <a class="btn btn-primary" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">Get the code →</a>
+          <button class="btn btn-ghost" onclick="show('showcase')">Back to showcase</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-links">
+    <a href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://sailingoroboro.com" target="_blank" rel="noopener">S/V Oroboro</a>
+    <a href="https://app.sailingoroboro.com" target="_blank" rel="noopener">Boat Manager app</a>
+    <a href="https://www.instagram.com/sailingoroboro/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+  <div class="made">Built with ⚓ aboard S/V Oroboro · CC BY-NC 4.0 · never your only anchor watch</div>
+</footer>
+
+<script>
+function show(v){
+  document.getElementById('view-showcase').classList.toggle('active', v==='showcase');
+  document.getElementById('view-guide').classList.toggle('active', v==='guide');
+  document.getElementById('tab-showcase').classList.toggle('active', v==='showcase');
+  document.getElementById('tab-guide').classList.toggle('active', v==='guide');
+  window.scrollTo({top:0,behavior:'instant'});
+  history.replaceState(null,'', v==='guide' ? '#build' : '#');
+}
+// deep-link: #build opens the guide
+if(location.hash==='#build') show('guide');
+
+// TOC active-state on scroll
+var toc=document.getElementById('toc');
+var links=[].slice.call(toc.querySelectorAll('a'));
+var steps=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));});
+function onScroll(){
+  if(!document.getElementById('view-guide').classList.contains('active'))return;
+  var y=window.scrollY+120, cur=-1;
+  steps.forEach(function(s,i){ if(s && s.offsetTop<=y) cur=i; });
+  links.forEach(function(a,i){ a.classList.toggle('on', i===cur); });
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+// smooth-scroll TOC (accounting for fixed nav)
+links.forEach(function(a){
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    var t=document.getElementById(a.getAttribute('href').slice(1));
+    if(t) window.scrollTo({top:t.offsetTop-80,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>
