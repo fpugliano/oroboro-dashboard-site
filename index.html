@@ -135,15 +135,6 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
 .compare .us .price{color:var(--accent)}
 @media(max-width:680px){.compare{grid-template-columns:1fr}}
 
-/* ── Lead feature (main dashboard — full width, landscape shot) ── */
-.feature-lead{margin-bottom:6rem}
-.feature-lead-text{max-width:720px;margin:0 auto;text-align:center}
-.feature-lead-text .eyebrow{margin-bottom:0.65rem}
-.feature-lead-text h3{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.025em;line-height:1.14}
-.feature-lead-text p{font-size:1.05rem;color:var(--muted);line-height:1.75;margin-top:1rem}
-.feature-lead-text .tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem;justify-content:center}
-.feature-lead-shot{margin-top:2.5rem;display:flex;justify-content:center}
-.feature-lead-shot img{max-width:860px;width:100%;height:auto;border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow-lg)}
 
 /* ── Features ── */
 .feature{display:grid;grid-template-columns:1fr auto;gap:5rem;align-items:center}
@@ -351,17 +342,17 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 
   <!-- Marquee features -->
   <section class="wrap">
-    <div class="feature-lead">
-      <div class="feature-lead-text">
-        <div class="eyebrow">The main dashboard</div>
-        <h3>Your whole boat, at a glance.</h3>
-        <p>One screen brings together everything your instruments and Victron system already know — true and apparent wind on a live rose, speed, depth and water temperature, house-bank state of charge with power flowing in and out, solar yield panel by panel, and tank levels. No flipping between apps or squinting at four separate gauges: the numbers that matter are laid out the way a sailor actually reads them, updating live. It runs full-screen at the nav station, on a cockpit tablet, or on your phone — same panel, everywhere.</p>
-        <div class="tags"><span class="tag">Wind &amp; navigation</span><span class="tag">Batteries &amp; solar</span><span class="tag">Tanks</span><span class="tag">Live, no refresh</span></div>
-      </div>
-      <div class="feature-lead-shot">
-        <img src="screenshots/main-dashboard-front.png" alt="The Oroboro main dashboard — wind rose with true and apparent wind, speed over ground, depth, water temperature, house-bank charge, solar panel output, and water-tank levels on one dark instrument panel">
-      </div>
-    </div>
+    <div class="feature">
+  <div class="feature-text">
+    <div class="eyebrow">The main dashboard</div>
+    <h3>Your whole boat, at a glance.</h3>
+    <p>One screen brings together everything your instruments and Victron system already know — true and apparent wind on a live rose, speed, depth and water temperature, house-bank state of charge with power flowing in and out, solar yield panel by panel, and tank levels. No flipping between apps or squinting at four separate gauges: the numbers that matter are laid out the way a sailor actually reads them, updating live. It runs full-screen at the nav station, on a cockpit tablet, or on your phone — same panel, everywhere.</p>
+    <div class="tags"><span class="tag">Wind &amp; navigation</span><span class="tag">Batteries &amp; solar</span><span class="tag">Tanks</span><span class="tag">Live, no refresh</span></div>
+  </div>
+  <div class="feature-shot phone">
+    <img src="screenshots/main-dashboard-front.png" alt="The Oroboro main dashboard on a phone — wind rose, speed, depth, house bank, solar and tanks on one dark panel">
+  </div>
+</div>
 
     <div class="feature">
       <div class="feature-text">
