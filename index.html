@@ -519,12 +519,12 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>€60–90</td><td>Yes</td></tr>
           <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
           <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
-          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>€20–90</td><td>Yes*</td></tr>
+          <tr><td>Waveshare RS485 CAN HAT</td><td>€15–25</td><td>Yes</td></tr>
           <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
           <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
           <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
         </table>
-        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at €170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
+        <p style="font-size:14px;color:var(--paper-faint)">All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
 
       <div class="step" id="g-parts">
@@ -544,66 +544,40 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 
       <div class="step" id="g-n2k">
         <div class="step-n">Wire · 03</div>
-        <h2>Connecting to your instrument network</h2>
-        <p>The Raspberry Pi has no marine-network port of its own. Which interface board you need depends entirely on how old your boat's instrument network is. Here's the clear breakdown:</p>
+        <h2>The interface board — Waveshare RS485 CAN HAT</h2>
+        <p>The Raspberry Pi has no marine-network port of its own. You add a small board that stacks directly onto its GPIO pins: the <strong>Waveshare RS485 CAN HAT</strong> (~€15–25 on Amazon or AliExpress). This is the board running on S/V Oroboro and the one this guide is written around.</p>
+        <p>Despite the name, this board has <strong>two completely separate interfaces on it</strong> — a CAN bus side and an RS485 side. You use one or the other depending on how old your boat's instruments are. Both are labelled clearly on the board.</p>
 
-        <h3>Modern boats (NMEA 2000 or Raymarine SeaTalkNG, roughly 2008 onward)</h3>
-        <p>You need a board that speaks <strong>CAN bus</strong> — the physical layer that NMEA 2000 runs on. Two important things people get confused about:</p>
+        <img src="screenshots/RS485.png" alt="Waveshare RS485 CAN HAT showing CAN H/L terminals and RS485 A/B terminals" style="margin:1.25rem 0;width:100%;max-width:520px;border-radius:10px;border:1px solid var(--border)" onerror="this.style.display='none'">
 
+        <h3>Modern boat (NMEA 2000 or Raymarine SeaTalkNG) — use the CAN side</h3>
+        <p>If your instruments are connected via a backbone cable with T-connectors — that's NMEA 2000 (or Raymarine's version of it, SeaTalkNG, which is electrically identical). Use the <strong>H and L terminals</strong> on the HAT.</p>
+        <p>Cut a drop cable from your backbone. Connect two wires:</p>
+        <pre><span class="c"># SeaTalkNG / NMEA 2000 drop cable → CAN side of the HAT</span>
+white  →  H terminal
+blue   →  L terminal
+<span class="c"># Leave red (12V) and black (GND) disconnected — power the Pi separately
+# Wire colours vary by brand — check your manufacturer's pinout if unsure</span></pre>
         <div class="callout">
-          <span class="k">SeaTalkNG is NMEA 2000 — same protocol, different plug</span>
-          <p>Raymarine's SeaTalkNG is not a different protocol from NMEA 2000 — it uses exactly the same CAN bus signals and the same messages (PGNs). The only difference is the physical connector: Raymarine uses their proprietary SeaTalkNG connectors instead of the standard DeviceNet M12 connectors. This means your SeaTalkNG backbone IS a CAN bus, and you connect to it exactly the same way you'd connect to any NMEA 2000 network — by cutting a drop cable and wiring the two data wires to the HAT. No conversion, just an adapter or a cut cable.</p>
+          <span class="k">SeaTalkNG is NMEA 2000 with Raymarine connectors</span>
+          <p>Raymarine's SeaTalkNG backbone carries exactly the same CAN bus signals as standard NMEA 2000. The only difference is the physical connector. So when you cut a SeaTalkNG drop cable and wire white to H and blue to L, you are connecting to the CAN bus — and it works perfectly. No conversion needed, just a cut cable.</p>
         </div>
 
-        <div class="callout warn">
-          <span class="k">The "RS485 CAN HAT" is a combined board — you use its CAN side</span>
-          <p>The popular Waveshare RS485 CAN HAT has two completely separate interfaces on one board: a <strong>CAN bus side</strong> (using an MCP2515 controller, terminals labelled H and L) and an <strong>RS485 side</strong> (a different electrical standard, terminals labelled A and B). For NMEA 2000 and SeaTalkNG you use the <strong>CAN side — the H and L terminals</strong>. The RS485 side is for NMEA 0183 on older instruments. Many sailors call it an "RS485 HAT" because that's the product name, but when wiring to a modern NMEA 2000 backbone they're using its CAN half.</p>
-          <img src="screenshots/RS485.png" alt="Waveshare RS485 CAN HAT showing both the CAN H/L terminals and RS485 A/B terminals" style="margin-top:1rem;width:100%;max-width:480px;border-radius:8px;display:block" onerror="this.style.display='none'">
-        </div>
+        <h3>Older boat (NMEA 0183 or Seatalk1) — use the RS485 side</h3>
+        <p>If your instruments use daisy-chained cables with yellow Seatalk connectors, or individual wires to each instrument, that's the older NMEA 0183 / Seatalk1 world. Use the <strong>A and B terminals</strong> on the HAT.</p>
+        <pre><span class="c"># NMEA 0183 talker → RS485 side of the HAT</span>
+TX+  →  A terminal  (receive channel)
+TX-  →  B terminal
+<span class="c"># Termination resistor jumpers must be set to OFF for NMEA 0183</span></pre>
 
-        <p>The wiring for NMEA 2000 / SeaTalkNG — cut a drop cable from your backbone and connect two wires:</p>
-        <pre><span class="c"># SeaTalkNG / NMEA 2000 drop cable → CAN HAT (H and L terminals)</span>
-white  →  CAN-H  (H terminal on the HAT)
-blue   →  CAN-L  (L terminal on the HAT)
-<span class="c"># leave red (12V) and black (GND) disconnected — the Pi powers the HAT separately
-# wire colours vary by brand — check your manufacturer's pinout if unsure</span></pre>
-        <p>Compatible HATs for NMEA 2000 / SeaTalkNG: Waveshare RS485 CAN HAT (use its CAN side), MacArthur HAT (CAN-only, OpenPlotter native), PiCAN-M (CAN + NMEA 0183 in one). All work the same way.</p>
+        <h3>Mixed fleet?</h3>
+        <p>If you have both old and new instruments, the Waveshare HAT handles both simultaneously — CAN side for the NMEA 2000 backbone, RS485 side for any legacy NMEA 0183 talkers. One board, one solution.</p>
 
-        <h3>Older boats (NMEA 0183 or Seatalk1, pre-2008)</h3>
-        <p>Older instruments speak <strong>NMEA 0183</strong>, which uses RS485/RS422 electrical signalling — a completely different physical standard from CAN bus. Here you DO use the RS485 side of the board (or a dedicated USB-to-RS422 adapter), and OpenPlotter reads the text-based NMEA sentences. RS485 does not carry NMEA 2000 data.</p>
-        <p>If your boat has a mix of old and new instruments, the Waveshare RS485 CAN HAT handles both simultaneously — CAN side for your NMEA 2000 network, RS485 side for any legacy NMEA 0183 talkers.</p>
-
-        <h3>Protocol summary</h3>
-        <table class="costs">
-          <tr><th>Protocol</th><th>Physical layer</th><th>Era</th><th>What you need</th></tr>
-          <tr><td>NMEA 2000 / SeaTalkNG / SimNet</td><td>CAN bus (250 kbps)</td><td>2008+</td><td>CAN HAT → H and L terminals</td></tr>
-          <tr><td>NMEA 0183 / Seatalk1</td><td>RS485 / RS422</td><td>Pre-2008</td><td>RS485 side of HAT or USB adapter → A and B terminals</td></tr>
+        <table class="costs" style="margin-top:1.5rem">
+          <tr><th>Your network</th><th>Terminals to use</th><th>Wire colours (typical)</th></tr>
+          <tr><td>NMEA 2000 / SeaTalkNG / SimNet</td><td>H and L (CAN side)</td><td>white → H, blue → L</td></tr>
+          <tr><td>NMEA 0183 / Seatalk1</td><td>A and B (RS485 side)</td><td>TX+ → A, TX- → B</td></tr>
         </table>
-
-        <h3>Which board should I buy?</h3>
-        <p>Answer these two questions and you'll know exactly what to buy:</p>
-
-        <p><strong>Question 1: do your instruments have a backbone cable running along the boat?</strong> If yes — a multi-wire cable with T-connectors that everything plugs into — that's NMEA 2000 or SeaTalkNG (the same thing, as explained above). You need the <strong>CAN side</strong> of a HAT.</p>
-        <p>If your instruments are daisy-chained one-to-one with thin yellow cables and round D-type connectors, or if each instrument runs a separate wire back to a junction box, that's the older Seatalk1 or NMEA 0183 world. You need the <strong>RS485 side</strong>.</p>
-
-        <p><strong>Question 2: do you want to keep it as cheap as possible, or as simple as possible?</strong></p>
-
-        <div class="callout">
-          <span class="k">Cheapest option (~€15–25) — Waveshare RS485 CAN HAT</span>
-          <p>This is what runs on S/V Oroboro. It has both CAN and RS485 on one board, costs around €15–25 on Amazon or AliExpress, and works perfectly. If you have a modern NMEA 2000 or SeaTalkNG backbone you use its CAN side (H and L terminals). If you have older NMEA 0183 instruments you use its RS485 side (A and B terminals). If you have both, you can use both simultaneously. The only catch: setup requires enabling the right kernel driver in OpenPlotter — a handful of terminal commands that the OpenPlotter documentation walks through clearly.</p>
-        </div>
-
-        <div class="callout">
-          <span class="k">Simplest option (~€80–120) — MacArthur HAT or PiCAN-M</span>
-          <p>These boards are designed specifically for marine use and are natively supported by OpenPlotter — meaning the software recognises them automatically with minimal configuration. The MacArthur HAT is the OpenPlotter team's own board, CAN-only, designed to connect to any NMEA 2000 backbone by cutting a drop cable. The PiCAN-M adds a built-in NMEA 0183 port alongside CAN, useful if you have a mix of old and new instruments. Both cost significantly more than the Waveshare board but save you time and troubleshooting.</p>
-        </div>
-
-        <div class="callout">
-          <span class="k">USB gateway option (~€150–200) — Actisense NGT-1 or Yacht Devices</span>
-          <p>Instead of a HAT that stacks on the Pi, these are small external boxes that plug into the Pi via USB on one side and connect to the NMEA 2000 backbone on the other. No GPIO, no kernel drivers, no soldering. They are more expensive but work immediately on any computer, not just the Pi — useful if you already have one on board, or if you want to avoid any HAT configuration entirely. The Actisense NGT-1 is the most widely supported option in the Signal K world.</p>
-        </div>
-
-        <p style="font-size:0.9rem;color:var(--muted)"><strong>Bottom line:</strong> if you're on a budget and comfortable with a little terminal work, buy the Waveshare RS485 CAN HAT (~€20) and follow the OpenPlotter CAN bus setup guide. If you want the path of least resistance, buy the MacArthur HAT. If you want zero configuration, buy an Actisense NGT-1 and plug it in via USB.</p>
       </div>
 
       <div class="step" id="g-connect">
