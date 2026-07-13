@@ -623,13 +623,24 @@ AIS / GPS ────────┘                                      │
       <div class="step" id="g-victron">
         <div class="step-n">Software · 07</div>
         <h2>Connect your Victron system</h2>
-        <p>To see batteries and solar, bridge Victron into Signal K. Three paths, depending on your gear:</p>
-        <ul>
-          <li><strong>Already have a Cerbo/GX?</strong> Enable its MQTT output and point Signal K at it.</li>
-          <li><strong>No GX device?</strong> Run Venus OS on a second small Pi with VE.Direct-USB cables — the open-source route to the same data.</li>
-          <li><strong>Direct?</strong> VE.Direct-to-USB straight into the OpenPlotter Pi for simpler systems.</li>
-        </ul>
-        <p>You don't need to buy a Cerbo just for this — the README's "you don't need a Cerbo" section walks through each path in detail.</p>
+        <p>Victron gear doesn't speak NMEA 2000 — it has its own proprietary communication system called <strong>VE.Direct</strong>, a simple serial protocol that runs over a small cable with a dedicated plug on each Victron device (MPPT solar controllers, battery monitors, inverter/chargers). To get battery and solar data into Signal K and onto the dashboard, you need to bridge that VE.Direct data across to the Pi. There are three ways depending on what Victron hardware you already have:</p>
+
+        <h3>Option A — You already have a Victron Cerbo GX (or other GX device)</h3>
+        <p>The Cerbo GX is Victron's own monitoring hub — it collects data from all your Victron devices via VE.Direct cables plugged directly into it, and can share that data over your local network using a standard protocol called MQTT. Signal K has a built-in plugin that reads MQTT, so the Pi just listens and picks up everything — battery state, solar yield, loads, inverter status. Enable MQTT on the Cerbo (Settings → Services → MQTT on LAN), install the Signal K MQTT plugin, and point it at the Cerbo's IP address. No extra hardware needed.</p>
+
+        <h3>Option B — No GX device: run Venus OS on a second Pi</h3>
+        <p>Venus OS is Victron's open-source operating system — the same software that runs on a Cerbo — and Victron officially supports running it on a Raspberry Pi. You plug your VE.Direct cables from each Victron device into the second Pi via cheap VE.Direct-to-USB adapters (~€15–20 each), and that Pi acts as a Cerbo substitute. It then shares data over MQTT exactly as in Option A. This is the path if you don't want to buy a Cerbo (€200+) and are happy running a second small Pi.</p>
+
+        <h3>Option C — VE.Direct-to-USB directly into the OpenPlotter Pi</h3>
+        <p>This is the simplest and cheapest option if you only have one or two Victron devices (say, a single MPPT controller and a SmartShunt battery monitor). Each Victron device has a VE.Direct port — a small socket on the side. You buy a VE.Direct-to-USB cable (~€15–20 per device), plug one end into the Victron device and the other end into a USB port on your OpenPlotter Pi. Signal K's Victron plugin then reads each device directly. No Cerbo, no second Pi, no MQTT — just a cable per device. The limitation: each device needs its own cable and USB port, and if you have many Victron devices it becomes unwieldy. For one or two devices it's perfect.</p>
+
+        <div class="callout">
+          <span class="k">What's the right choice for you?</span>
+          <p><strong>Have a Cerbo already?</strong> → Option A, easiest path, ten minutes of configuration.<br>
+          <strong>No Cerbo, three or more Victron devices?</strong> → Option B, a second Pi with Venus OS.<br>
+          <strong>No Cerbo, one or two devices?</strong> → Option C, a USB cable per device, done.</p>
+        </div>
+        <p>The README's "you don't need a Cerbo" section covers each path in detail with the exact plugin names and settings.</p>
       </div>
 
       <div class="step" id="g-deploy">
