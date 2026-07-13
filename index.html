@@ -12,6 +12,9 @@
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://build.sailingoroboro.com/screenshots/TabletView.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="192x192" href="screenshots/favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="screenshots/favicon-32.png">
+<link rel="apple-touch-icon" href="screenshots/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
@@ -520,6 +523,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
           <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
           <tr><td>Waveshare RS485 CAN HAT</td><td>€15–25</td><td>Yes</td></tr>
+          <tr><td>DIN rail case (Hitaltech 4M XTS or Waveshare DIN Rail ABS)</td><td>€15–25</td><td>Yes</td></tr>
           <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
           <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
           <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
@@ -533,12 +537,13 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
         <p>At minimum you need three things: a <strong>Raspberry Pi</strong> (the computer), a way to <strong>power it from the boat's 12 V</strong>, and an <strong>interface to your instrument network</strong>. Everything else — touchscreen, 4G router, Victron cables — extends what you can see and do.</p>
         <div class="hw-grid">
           <figure class="hw-card"><img src="screenshots/hw-pi.png" alt="Raspberry Pi 4 single-board computer" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Raspberry Pi 4 / 5 — the brain</figcaption></figure>
-          <figure class="hw-card"><img src="screenshots/hw-can-hat.png" alt="NMEA 2000 CAN bus HAT that stacks on the Raspberry Pi" onerror="this.closest('.hw-card').style.display='none'"><figcaption>CAN bus HAT — stacks on top, talks NMEA&nbsp;2000</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-case.png" alt="DIN rail case for Raspberry Pi with HAT clearance" onerror="this.closest('.hw-card').style.display='none'"><figcaption>DIN rail case — fits Pi + RS485 HAT, mounts in nav station</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-converter.png" alt="12V to 5V USB-C step-down converter" onerror="this.closest('.hw-card').style.display='none'"><figcaption>12 V → 5 V converter — boat power to Pi power</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-display.png" alt="Official Raspberry Pi 7-inch touchscreen display" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Official Pi 7″ touchscreen — the nav-station panel</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-n2k-wiring.jpg" alt="NMEA 2000 drop cable cut open with white and blue data wires connected to the CAN HAT terminals" onerror="this.closest('.hw-card').style.display='none'"><figcaption>The wiring — white to CAN-H, blue to CAN-L</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-cerbo.png" alt="Victron Cerbo GX connected alongside the Raspberry Pi" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Victron Cerbo GX — bridges battery &amp; solar data</figcaption></figure>
         </div>
+        <p>One thing easily forgotten: you need a <strong>case</strong>. Standard Pi cases won't fit once the RS485 HAT is stacked on top. You need a case with at least 36mm of internal clearance above the Pi board. The Hitaltech 4M XTS DIN rail case (~€15–25) and the Waveshare DIN Rail ABS case (~€15–20) are both designed for a Pi with a stacked HAT and include a clear removable top for easy access. DIN rail mounting clips directly into an electrical panel or nav-station board — ideal for a boat installation. If someone in your marina has a 3D printer, there's also a free Thingiverse model specifically made for a Pi with the Waveshare RS485 CAN HAT.</p>
         <p>The single decision that trips people up is the instrument interface, because it depends on how old your boat's electronics are. That's the next step.</p>
       </div>
 
