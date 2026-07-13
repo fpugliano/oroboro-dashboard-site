@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oroboro Dashboard — Build your own boat instrument panel</title>
-<meta name="description" content="A free, open-source marine instrument dashboard you build yourself on a Raspberry Pi. Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and sailing-performance analysis. Runs on a €50 Pi. Built by a liveaboard sailor.">
+<meta name="description" content="A free, open-source marine instrument dashboard you build yourself on a Raspberry Pi. Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and sailing-performance analysis. Runs on a $50 Pi. Built by a liveaboard sailor.">
 <meta name="keywords" content="marine dashboard, Signal K dashboard, Raspberry Pi boat computer, OpenPlotter, NMEA 2000 dashboard, sailing instruments, anchor watch app, AIS proximity alarm, Victron alternative, polar performance sailing">
 <meta property="og:title" content="Oroboro Dashboard — Build your own boat instrument panel">
 <meta property="og:description" content="A free, open-source marine dashboard on a Raspberry Pi. Instruments, anchor watch, AIS collision monitoring, polar performance. Built by a real sailor.">
@@ -135,7 +135,6 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
 .compare .us .price{color:var(--accent)}
 @media(max-width:680px){.compare{grid-template-columns:1fr}}
 
-
 /* ── Features ── */
 .feature{display:grid;grid-template-columns:1fr auto;gap:5rem;align-items:center}
 .feature.flip{grid-template-columns:auto 1fr}
@@ -250,6 +249,14 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 .costs .total td{border-top:2px solid var(--accent);border-bottom:none;color:var(--text);font-weight:700;padding-top:0.9rem}
 .costs .total td:nth-child(2){color:var(--accent)}
 
+/* ── Hardware gallery (build guide) ── */
+.hw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+.hw-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;text-align:center;margin:0}
+.hw-card img{width:100%;height:150px;object-fit:contain;display:block}
+.hw-card figcaption{font-size:0.82rem;color:var(--muted);margin-top:0.75rem;line-height:1.45}
+@media(max-width:820px){.hw-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.hw-grid{grid-template-columns:1fr}}
+
 /* ── Footer ── */
 .foot{background:var(--bg-dark);padding:3.5rem 2rem;text-align:center}
 .foot-links{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem}
@@ -288,14 +295,14 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
     <div class="hero-grid"></div>
     <div class="wrap hero-inner">
       <div class="eyebrow">Free &amp; open-source · Signal K · Raspberry Pi</div>
-      <h1>Your boat's instruments,<br>on a <span class="glow">€50 screen</span> you build.</h1>
+      <h1>Your boat's instruments,<br>on a <span class="glow">$50 screen</span> you build.</h1>
       <p class="hero-sub">Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and full sailing-performance analysis — one clean panel, running on a Raspberry Pi in your nav station. No subscription. No cloud you don't control.</p>
       <div class="hero-cta">
         <button class="btn btn-primary" onclick="show('guide')">Build it yourself →</button>
         <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">See the code</a>
       </div>
       <div class="hero-stats">
-        <div class="hstat"><div class="n">€150–250</div><div class="l">Typical build</div></div>
+        <div class="hstat"><div class="n">$150–250</div><div class="l">Typical build</div></div>
         <div class="hstat"><div class="n">100%</div><div class="l">Open source</div></div>
         <div class="hstat"><div class="n">24/7</div><div class="l">Anchor &amp; AIS watch</div></div>
         <div class="hstat"><div class="n">0</div><div class="l">Subscriptions</div></div>
@@ -323,7 +330,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
             <li>No sailing-performance analysis</li>
             <li>Closed ecosystem, fixed feature set</li>
           </ul>
-          <div class="price">≈ €530–630 · electrical only</div>
+          <div class="price">≈ $530–630 · electrical only</div>
         </div>
         <div class="us">
           <h3>Oroboro Dashboard on a Pi</h3>
@@ -334,7 +341,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
             <li>Polar performance analyzer built in</li>
             <li>Open source — change anything, owe nothing</li>
           </ul>
-          <div class="price">≈ €150–250 · the whole boat</div>
+          <div class="price">≈ $150–250 · the whole boat</div>
         </div>
       </div>
     </div>
@@ -343,16 +350,16 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
   <!-- Marquee features -->
   <section class="wrap">
     <div class="feature">
-  <div class="feature-text">
-    <div class="eyebrow">The main dashboard</div>
-    <h3>Your whole boat, at a glance.</h3>
-    <p>One screen brings together everything your instruments and Victron system already know — true and apparent wind on a live rose, speed, depth and water temperature, house-bank state of charge with power flowing in and out, solar yield panel by panel, and tank levels. No flipping between apps or squinting at four separate gauges: the numbers that matter are laid out the way a sailor actually reads them, updating live. It runs full-screen at the nav station, on a cockpit tablet, or on your phone — same panel, everywhere.</p>
-    <div class="tags"><span class="tag">Wind &amp; navigation</span><span class="tag">Batteries &amp; solar</span><span class="tag">Tanks</span><span class="tag">Live, no refresh</span></div>
-  </div>
-  <div class="feature-shot phone">
-    <img src="screenshots/main-dashboard-front.png" alt="The Oroboro main dashboard on a phone — wind rose, speed, depth, house bank, solar and tanks on one dark panel">
-  </div>
-</div>
+      <div class="feature-text">
+        <div class="eyebrow">The main dashboard</div>
+        <h3>Your whole boat, at a glance.</h3>
+        <p>One screen brings together everything your instruments and Victron system already know — true and apparent wind on a live rose, speed, depth and water temperature, house-bank state of charge with power flowing in and out, solar yield panel by panel, and tank levels. No flipping between apps or squinting at four separate gauges: the numbers that matter are laid out the way a sailor actually reads them, updating live. It runs full-screen at the nav station, on a cockpit tablet, or on your phone — same panel, everywhere.</p>
+        <div class="tags"><span class="tag">Wind &amp; navigation</span><span class="tag">Batteries &amp; solar</span><span class="tag">Tanks</span><span class="tag">Live, no refresh</span></div>
+      </div>
+      <div class="feature-shot phone">
+        <img src="screenshots/main-dashboard-front.png" alt="The Oroboro main dashboard on a phone — wind rose with true and apparent wind, speed over ground, depth, water temperature, house-bank charge, solar panel output, and water-tank levels on one dark instrument panel">
+      </div>
+    </div>
 
     <div class="feature">
       <div class="feature-text">
@@ -509,21 +516,29 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
         <p>Approximate street prices, mid-2026 — they drift, so treat them as ballparks. The core electronics come in well under a Victron panel that does less.</p>
         <table class="costs">
           <tr><th>Item</th><th>Approx.</th><th>Needed?</th></tr>
-          <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>€60–90</td><td>Yes</td></tr>
-          <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
-          <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
-          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>€20–90</td><td>Yes*</td></tr>
-          <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
-          <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
-          <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
+          <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>$60–90</td><td>Yes</td></tr>
+          <tr><td>Quality microSD card, 32 GB+</td><td>$10</td><td>Yes</td></tr>
+          <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>$10–20</td><td>Yes</td></tr>
+          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>$20–90</td><td>Yes*</td></tr>
+          <tr><td>4G/LTE WiFi router + data SIM</td><td>$50–150</td><td>For remote alarms</td></tr>
+          <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>$60–120</td><td>Optional</td></tr>
+          <tr class="total"><td>Typical core build</td><td>$150–250</td><td></td></tr>
         </table>
-        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at €170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
+        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at $170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
 
       <div class="step" id="g-parts">
         <div class="step-n">Plan · 02</div>
         <h2>The parts list</h2>
         <p>At minimum you need three things: a <strong>Raspberry Pi</strong> (the computer), a way to <strong>power it from the boat's 12 V</strong>, and an <strong>interface to your instrument network</strong>. Everything else — touchscreen, 4G router, Victron cables — extends what you can see and do.</p>
+        <div class="hw-grid">
+          <figure class="hw-card"><img src="screenshots/hw-pi.png" alt="Raspberry Pi 4 single-board computer" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Raspberry Pi 4 / 5 — the brain</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-can-hat.png" alt="NMEA 2000 CAN bus HAT that stacks on the Raspberry Pi" onerror="this.closest('.hw-card').style.display='none'"><figcaption>CAN bus HAT — stacks on top, talks NMEA&nbsp;2000</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-converter.png" alt="12V to 5V USB-C step-down converter" onerror="this.closest('.hw-card').style.display='none'"><figcaption>12 V → 5 V converter — boat power to Pi power</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-display.png" alt="Official Raspberry Pi 7-inch touchscreen display" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Official Pi 7″ touchscreen — the nav-station panel</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-n2k-wiring.jpg" alt="NMEA 2000 drop cable cut open with white and blue data wires connected to the CAN HAT terminals" onerror="this.closest('.hw-card').style.display='none'"><figcaption>The wiring — white to CAN-H, blue to CAN-L</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-cerbo.png" alt="Victron Cerbo GX connected alongside the Raspberry Pi" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Victron Cerbo GX — bridges battery &amp; solar data</figcaption></figure>
+        </div>
         <p>The single decision that trips people up is the instrument interface, because it depends on how old your boat's electronics are. That's the next step.</p>
       </div>
 
@@ -540,7 +555,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 white  →  CAN-H
 blue   →  CAN-L
 <span class="c"># leave red/black (power) disconnected — the Pi powers the HAT</span></pre>
-        <p><strong>Older boat (pre-2008 NMEA 0183 or Seatalk1)?</strong> Then instead of a CAN HAT you use a USB-to-RS422/RS485 adapter (~€10–25), and OpenPlotter reads the 0183 sentences. The MacArthur HAT handles both worlds if you're mixed.</p>
+        <p><strong>Older boat (pre-2008 NMEA 0183 or Seatalk1)?</strong> Then instead of a CAN HAT you use a USB-to-RS422/RS485 adapter (~$10–25), and OpenPlotter reads the 0183 sentences. The MacArthur HAT handles both worlds if you're mixed.</p>
       </div>
 
       <div class="step" id="g-connect">
