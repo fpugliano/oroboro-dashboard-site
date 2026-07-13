@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oroboro Dashboard — Build your own boat instrument panel</title>
-<meta name="description" content="A free, open-source marine instrument dashboard you build yourself on a Raspberry Pi. Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and sailing-performance analysis. Runs on a $50 Pi. Built by a liveaboard sailor.">
+<meta name="description" content="A free, open-source marine instrument dashboard you build yourself on a Raspberry Pi. Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and sailing-performance analysis. Runs on a €50 Pi. Built by a liveaboard sailor.">
 <meta name="keywords" content="marine dashboard, Signal K dashboard, Raspberry Pi boat computer, OpenPlotter, NMEA 2000 dashboard, sailing instruments, anchor watch app, AIS proximity alarm, Victron alternative, polar performance sailing">
 <meta property="og:title" content="Oroboro Dashboard — Build your own boat instrument panel">
 <meta property="og:description" content="A free, open-source marine dashboard on a Raspberry Pi. Instruments, anchor watch, AIS collision monitoring, polar performance. Built by a real sailor.">
@@ -295,14 +295,14 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
     <div class="hero-grid"></div>
     <div class="wrap hero-inner">
       <div class="eyebrow">Free &amp; open-source · Signal K · Raspberry Pi</div>
-      <h1>Your boat's instruments,<br>on a <span class="glow">$50 screen</span> you build.</h1>
+      <h1>Your boat's instruments,<br>on a <span class="glow">€50 screen</span> you build.</h1>
       <p class="hero-sub">Wind, navigation, batteries, solar, tanks, anchor watch with phone alarms, AIS collision monitoring, and full sailing-performance analysis — one clean panel, running on a Raspberry Pi in your nav station. No subscription. No cloud you don't control.</p>
       <div class="hero-cta">
         <button class="btn btn-primary" onclick="show('guide')">Build it yourself →</button>
         <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">See the code</a>
       </div>
       <div class="hero-stats">
-        <div class="hstat"><div class="n">$150–250</div><div class="l">Typical build</div></div>
+        <div class="hstat"><div class="n">€150–250</div><div class="l">Typical build</div></div>
         <div class="hstat"><div class="n">100%</div><div class="l">Open source</div></div>
         <div class="hstat"><div class="n">24/7</div><div class="l">Anchor &amp; AIS watch</div></div>
         <div class="hstat"><div class="n">0</div><div class="l">Subscriptions</div></div>
@@ -330,7 +330,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
             <li>No sailing-performance analysis</li>
             <li>Closed ecosystem, fixed feature set</li>
           </ul>
-          <div class="price">≈ $530–630 · electrical only</div>
+          <div class="price">≈ €530–630 · electrical only</div>
         </div>
         <div class="us">
           <h3>Oroboro Dashboard on a Pi</h3>
@@ -341,7 +341,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
             <li>Polar performance analyzer built in</li>
             <li>Open source — change anything, owe nothing</li>
           </ul>
-          <div class="price">≈ $150–250 · the whole boat</div>
+          <div class="price">≈ €150–250 · the whole boat</div>
         </div>
       </div>
     </div>
@@ -395,30 +395,6 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
       <div class="feature-shot duo">
         <img src="screenshots/IMG_polarVPP-portrait.png" alt="Polar performance screen — VPP polar diagram with live wind and VMG readouts">
         <img src="screenshots/IMG_polarmap-portrait.png" alt="Track heat-map — the sailed route coloured by percentage of polar target">
-      </div>
-    </div>
-
-    <div class="feature flip">
-      <div class="feature-text">
-        <div class="eyebrow">History · Grafana</div>
-        <h3>Every passage, logged and queryable.</h3>
-        <p>The Pi writes every instrument reading to InfluxDB as it arrives — wind, speed, depth, battery, solar, engine hours, everything. Grafana turns that into charts you can actually use: zoom into the gust that hit you at 0200, see how your house bank recovered after a cloudy day, or pull the full passage summary after a long offshore leg. The data is yours, stored locally, no subscription required.</p>
-        <div class="tags"><span class="tag">InfluxDB on the Pi</span><span class="tag">Grafana dashboards</span><span class="tag">Passage history</span><span class="tag">No cloud</span></div>
-      </div>
-      <div class="feature-shot phone">
-        <img src="screenshots/IMG_HistoryGrafana-portrait.png" alt="Grafana history panel on a phone — time-series charts of wind speed, boat speed, and battery state of charge over a night passage">
-      </div>
-    </div>
-
-    <div class="feature">
-      <div class="feature-text">
-        <div class="eyebrow">Settings</div>
-        <h3>Configure once, then forget it.</h3>
-        <p>Vessel name, MMSI, polar file, alarm thresholds, Pushover keys, Victron host — everything the dashboard needs to know about your boat lives in one settings screen. No config files to edit by hand, no SSH session required. Change the anchor radius, swap the polar target, or wire up a new notification channel in seconds, from any device on the boat's network.</p>
-        <div class="tags"><span class="tag">No SSH needed</span><span class="tag">Alarm thresholds</span><span class="tag">Vessel profile</span></div>
-      </div>
-      <div class="feature-shot phone">
-        <img src="screenshots/IMG_settings-portrait.png" alt="Oroboro settings screen on a phone — vessel name, MMSI, polar file, Pushover keys, and alarm threshold fields">
       </div>
     </div>
   </section>
@@ -540,15 +516,15 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
         <p>Approximate street prices, mid-2026 — they drift, so treat them as ballparks. The core electronics come in well under a Victron panel that does less.</p>
         <table class="costs">
           <tr><th>Item</th><th>Approx.</th><th>Needed?</th></tr>
-          <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>$60–90</td><td>Yes</td></tr>
-          <tr><td>Quality microSD card, 32 GB+</td><td>$10</td><td>Yes</td></tr>
-          <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>$10–20</td><td>Yes</td></tr>
-          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>$20–90</td><td>Yes*</td></tr>
-          <tr><td>4G/LTE WiFi router + data SIM</td><td>$50–150</td><td>For remote alarms</td></tr>
-          <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>$60–120</td><td>Optional</td></tr>
-          <tr class="total"><td>Typical core build</td><td>$150–250</td><td></td></tr>
+          <tr><td>Raspberry Pi 4 (4 GB) or Pi 5</td><td>€60–90</td><td>Yes</td></tr>
+          <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
+          <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
+          <tr><td>NMEA 2000 CAN HAT (MacArthur / PiCAN-M / Waveshare)</td><td>€20–90</td><td>Yes*</td></tr>
+          <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
+          <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
+          <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
         </table>
-        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at $170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
+        <p style="font-size:14px;color:var(--paper-faint)">*Or a USB gateway (Actisense NGT-1, Yacht Devices) at €170–200 instead of the HAT. All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
 
       <div class="step" id="g-parts">
@@ -568,18 +544,66 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 
       <div class="step" id="g-n2k">
         <div class="step-n">Wire · 03</div>
-        <h2>NMEA 2000 — you need a CAN HAT</h2>
-        <p>The Raspberry Pi has no marine-network port of its own, so you add a small board. For a modern boat (roughly 2008 onward — Raymarine SeaTalkng, Garmin, B&amp;G, Simrad) that board is a <strong>CAN bus HAT</strong>.</p>
-        <div class="callout warn">
-          <span class="k">Common mix-up · CAN vs RS485</span>
-          <p>NMEA 2000 runs on the <strong>CAN bus</strong> — so you need a <strong>CAN HAT</strong>, not an RS485 board. RS485/RS422 is the physical layer of the <em>older</em> NMEA 0183 and Seatalk standards. Wiring an RS485 adapter to a NMEA 2000 backbone will not work: wrong signalling. If in doubt and your instruments are post-2008, you want a CAN HAT.</p>
+        <h2>Connecting to your instrument network</h2>
+        <p>The Raspberry Pi has no marine-network port of its own. Which interface board you need depends entirely on how old your boat's instrument network is. Here's the clear breakdown:</p>
+
+        <h3>Modern boats (NMEA 2000 or Raymarine SeaTalkNG, roughly 2008 onward)</h3>
+        <p>You need a board that speaks <strong>CAN bus</strong> — the physical layer that NMEA 2000 runs on. Two important things people get confused about:</p>
+
+        <div class="callout">
+          <span class="k">SeaTalkNG is NMEA 2000 — same protocol, different plug</span>
+          <p>Raymarine's SeaTalkNG is not a different protocol from NMEA 2000 — it uses exactly the same CAN bus signals and the same messages (PGNs). The only difference is the physical connector: Raymarine uses their proprietary SeaTalkNG connectors instead of the standard DeviceNet M12 connectors. This means your SeaTalkNG backbone IS a CAN bus, and you connect to it exactly the same way you'd connect to any NMEA 2000 network — by cutting a drop cable and wiring the two data wires to the HAT. No conversion, just an adapter or a cut cable.</p>
         </div>
-        <p>The wiring itself is two data wires from the backbone into the HAT:</p>
-        <pre><span class="c"># NMEA 2000 drop cable → CAN HAT</span>
-white  →  CAN-H
-blue   →  CAN-L
-<span class="c"># leave red/black (power) disconnected — the Pi powers the HAT</span></pre>
-        <p><strong>Older boat (pre-2008 NMEA 0183 or Seatalk1)?</strong> Then instead of a CAN HAT you use a USB-to-RS422/RS485 adapter (~$10–25), and OpenPlotter reads the 0183 sentences. The MacArthur HAT handles both worlds if you're mixed.</p>
+
+        <div class="callout warn">
+          <span class="k">The "RS485 CAN HAT" is a combined board — you use its CAN side</span>
+          <p>The popular Waveshare RS485 CAN HAT has two completely separate interfaces on one board: a <strong>CAN bus side</strong> (using an MCP2515 controller, terminals labelled H and L) and an <strong>RS485 side</strong> (a different electrical standard, terminals labelled A and B). For NMEA 2000 and SeaTalkNG you use the <strong>CAN side — the H and L terminals</strong>. The RS485 side is for NMEA 0183 on older instruments. Many sailors call it an "RS485 HAT" because that's the product name, but when wiring to a modern NMEA 2000 backbone they're using its CAN half.</p>
+          <img src="screenshots/RS485.png" alt="Waveshare RS485 CAN HAT showing both the CAN H/L terminals and RS485 A/B terminals" style="margin-top:1rem;width:100%;max-width:480px;border-radius:8px;display:block" onerror="this.style.display='none'">
+        </div>
+
+        <p>The wiring for NMEA 2000 / SeaTalkNG — cut a drop cable from your backbone and connect two wires:</p>
+        <pre><span class="c"># SeaTalkNG / NMEA 2000 drop cable → CAN HAT (H and L terminals)</span>
+white  →  CAN-H  (H terminal on the HAT)
+blue   →  CAN-L  (L terminal on the HAT)
+<span class="c"># leave red (12V) and black (GND) disconnected — the Pi powers the HAT separately
+# wire colours vary by brand — check your manufacturer's pinout if unsure</span></pre>
+        <p>Compatible HATs for NMEA 2000 / SeaTalkNG: Waveshare RS485 CAN HAT (use its CAN side), MacArthur HAT (CAN-only, OpenPlotter native), PiCAN-M (CAN + NMEA 0183 in one). All work the same way.</p>
+
+        <h3>Older boats (NMEA 0183 or Seatalk1, pre-2008)</h3>
+        <p>Older instruments speak <strong>NMEA 0183</strong>, which uses RS485/RS422 electrical signalling — a completely different physical standard from CAN bus. Here you DO use the RS485 side of the board (or a dedicated USB-to-RS422 adapter), and OpenPlotter reads the text-based NMEA sentences. RS485 does not carry NMEA 2000 data.</p>
+        <p>If your boat has a mix of old and new instruments, the Waveshare RS485 CAN HAT handles both simultaneously — CAN side for your NMEA 2000 network, RS485 side for any legacy NMEA 0183 talkers.</p>
+
+        <h3>Protocol summary</h3>
+        <table class="costs">
+          <tr><th>Protocol</th><th>Physical layer</th><th>Era</th><th>What you need</th></tr>
+          <tr><td>NMEA 2000 / SeaTalkNG / SimNet</td><td>CAN bus (250 kbps)</td><td>2008+</td><td>CAN HAT → H and L terminals</td></tr>
+          <tr><td>NMEA 0183 / Seatalk1</td><td>RS485 / RS422</td><td>Pre-2008</td><td>RS485 side of HAT or USB adapter → A and B terminals</td></tr>
+        </table>
+
+        <h3>Which board should I buy?</h3>
+        <p>Answer these two questions and you'll know exactly what to buy:</p>
+
+        <p><strong>Question 1: do your instruments have a backbone cable running along the boat?</strong> If yes — a multi-wire cable with T-connectors that everything plugs into — that's NMEA 2000 or SeaTalkNG (the same thing, as explained above). You need the <strong>CAN side</strong> of a HAT.</p>
+        <p>If your instruments are daisy-chained one-to-one with thin yellow cables and round D-type connectors, or if each instrument runs a separate wire back to a junction box, that's the older Seatalk1 or NMEA 0183 world. You need the <strong>RS485 side</strong>.</p>
+
+        <p><strong>Question 2: do you want to keep it as cheap as possible, or as simple as possible?</strong></p>
+
+        <div class="callout">
+          <span class="k">Cheapest option (~€15–25) — Waveshare RS485 CAN HAT</span>
+          <p>This is what runs on S/V Oroboro. It has both CAN and RS485 on one board, costs around €15–25 on Amazon or AliExpress, and works perfectly. If you have a modern NMEA 2000 or SeaTalkNG backbone you use its CAN side (H and L terminals). If you have older NMEA 0183 instruments you use its RS485 side (A and B terminals). If you have both, you can use both simultaneously. The only catch: setup requires enabling the right kernel driver in OpenPlotter — a handful of terminal commands that the OpenPlotter documentation walks through clearly.</p>
+        </div>
+
+        <div class="callout">
+          <span class="k">Simplest option (~€80–120) — MacArthur HAT or PiCAN-M</span>
+          <p>These boards are designed specifically for marine use and are natively supported by OpenPlotter — meaning the software recognises them automatically with minimal configuration. The MacArthur HAT is the OpenPlotter team's own board, CAN-only, designed to connect to any NMEA 2000 backbone by cutting a drop cable. The PiCAN-M adds a built-in NMEA 0183 port alongside CAN, useful if you have a mix of old and new instruments. Both cost significantly more than the Waveshare board but save you time and troubleshooting.</p>
+        </div>
+
+        <div class="callout">
+          <span class="k">USB gateway option (~€150–200) — Actisense NGT-1 or Yacht Devices</span>
+          <p>Instead of a HAT that stacks on the Pi, these are small external boxes that plug into the Pi via USB on one side and connect to the NMEA 2000 backbone on the other. No GPIO, no kernel drivers, no soldering. They are more expensive but work immediately on any computer, not just the Pi — useful if you already have one on board, or if you want to avoid any HAT configuration entirely. The Actisense NGT-1 is the most widely supported option in the Signal K world.</p>
+        </div>
+
+        <p style="font-size:0.9rem;color:var(--muted)"><strong>Bottom line:</strong> if you're on a budget and comfortable with a little terminal work, buy the Waveshare RS485 CAN HAT (~€20) and follow the OpenPlotter CAN bus setup guide. If you want the path of least resistance, buy the MacArthur HAT. If you want zero configuration, buy an Actisense NGT-1 and plug it in via USB.</p>
       </div>
 
       <div class="step" id="g-connect">
