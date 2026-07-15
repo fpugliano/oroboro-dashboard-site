@@ -210,6 +210,7 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
 .guide-hero p{color:var(--muted);max-width:620px;margin:1rem auto 0;font-size:1.1rem;line-height:1.65}
 .guide-hero a.link{color:var(--accent)}
 .guide-layout{display:grid;grid-template-columns:220px 1fr;gap:3.5rem;align-items:start;max-width:var(--maxw);margin:0 auto;padding:2rem}
+.guide-steps{min-width:0}
 .toc{position:sticky;top:72px;display:flex;flex-direction:column;gap:2px;font-size:0.85rem}
 .toc a{padding:7px 12px;border-radius:8px;color:var(--muted);border-left:2px solid transparent;transition:.15s}
 .toc a:hover{color:var(--text);background:var(--bg-alt)}
@@ -220,6 +221,14 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
   .toc{position:static;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:1.25rem;border-bottom:1px solid var(--border);margin-bottom:0.75rem}
   .toc .toc-sec{width:100%;padding:0.5rem 0 0.15rem}
   .toc a{border-left:none;border:1px solid var(--border)}
+}
+@media(max-width:600px){
+  .pre-wide{display:none}
+  .pre-narrow{display:block}
+  .toc{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:0.6rem;gap:6px}
+  .toc::-webkit-scrollbar{display:none}
+  .toc .toc-sec{display:none}
+  .toc a{flex-shrink:0;white-space:nowrap}
 }
 .step{scroll-margin-top:72px;padding:2.5rem 0;border-bottom:1px solid var(--border)}
 .step:last-child{border-bottom:none}
@@ -237,7 +246,8 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
 .callout p{margin:0;color:var(--muted);font-size:0.95rem}
 .callout.warn{border-left-color:#E0994F;background:#FFF8F0}
 .callout.warn .k{color:#C77A28}
-pre{background:#1D1D1F;border-radius:10px;padding:1rem 1.15rem;overflow-x:auto;margin:1rem 0;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.82rem;line-height:1.7;color:#4FD1C5}
+pre{background:#1D1D1F;border-radius:10px;padding:1rem 1.15rem;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1rem 0;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.82rem;line-height:1.7;color:#4FD1C5;min-width:0}
+.pre-narrow{display:none}
 pre .c{color:#8E8E93}
 code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;background:var(--bg-alt);padding:2px 7px;border-radius:5px;color:var(--accent);border:1px solid var(--border)}
 .costs{width:100%;border-collapse:collapse;margin:1.15rem 0;font-size:0.95rem}
@@ -262,8 +272,6 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
   .guide-hero{padding:2.5rem 1.25rem 1.25rem}
   .guide-layout{padding:1rem 1.25rem}
   .step{padding:1.75rem 0}
-  .costs{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:0.82rem}
-  .costs th,.costs td{padding:8px 8px}
   pre{font-size:0.72rem;padding:0.85rem 0.9rem}
   .toc a{font-size:0.78rem;padding:5px 9px}
   .hw-grid{grid-template-columns:1fr}
@@ -274,6 +282,16 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
   .feature-shot.duo img:last-child{max-width:48vw}
   .feature-shot.duo img:first-child{margin-right:-8vw}
   .hero-shot .caption{white-space:normal;text-align:center;bottom:-22px}
+  /* Costs table → stacked cards */
+  .costs{display:block;overflow-x:visible;font-size:0.88rem}
+  .costs tr:first-child{display:none}
+  .costs tr{display:block;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:0.6rem;background:#fff}
+  .costs td{display:block;border:none;padding:2px 0}
+  .costs td:nth-child(1){color:var(--text);font-weight:500;font-size:0.9rem}
+  .costs td:nth-child(2){color:var(--accent);font-weight:700;font-size:0.95rem;white-space:normal}
+  .costs td:nth-child(3){color:var(--muted);font-size:0.8rem}
+  .costs .total{border:2px solid var(--accent);background:rgba(0,113,227,0.03)}
+  .costs .total td:nth-child(1){font-weight:700;color:var(--text)}
 }
 
 /* ── Footer ── */
@@ -547,7 +565,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
           <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
         </table>
-        <p style="font-size:14px;color:var(--paper-faint)">All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
+        <p style="font-size:14px;color:var(--muted)">All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
 
       <div class="step" id="g-parts">
@@ -609,7 +627,7 @@ TX-  →  B terminal
         <div class="step-n">Wire · 04</div>
         <h2>How everything connects</h2>
         <p>The shape of the system, start to finish:</p>
-        <pre>boat instruments ─┐
+        <pre class="pre-wide">boat instruments ─┐
 Victron gear ─────┤→ NMEA 2000 backbone →  CAN HAT  →  Raspberry Pi
 AIS / GPS ────────┘                                      │
                                               Signal K (reads it all)
@@ -618,6 +636,21 @@ AIS / GPS ────────┘                                      │
                                      this dashboard   InfluxDB       anchor-api
                                        (the panel)   +  Grafana      (24/7 watch)
                                                      (history)</pre>
+        <pre class="pre-narrow">boat instruments ─┐
+Victron gear ──────┤
+AIS / GPS ─────────┘
+         │
+  NMEA 2000 backbone
+         │
+       CAN HAT
+         │
+    Raspberry Pi
+         │
+      Signal K
+  ┌──────┼──────┐
+panel  InfluxDB  anchor
+       Grafana   watch
+       (history) (24/7)</pre>
         <p>Signal K is the translator: it reads every device on the backbone and republishes it in one common format. The dashboard, the history database, and the anchor/AIS watchdog all read from Signal K. A small <strong>WiFi router</strong> ties it together so your phone and cockpit tablet see the same panel.</p>
       </div>
 
