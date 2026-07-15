@@ -35,11 +35,11 @@
   --maxw:1100px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;font-size:16px}
+html{scroll-behavior:smooth;font-size:16px;overflow-x:hidden;overflow-x:clip}
 body{
   font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  overflow-x:hidden;overflow-x:clip;
 }
 img{max-width:100%;height:auto;display:block}
 a{color:inherit;text-decoration:none}
@@ -197,15 +197,12 @@ h1,h2,h3,h4{font-family:inherit;color:var(--text)}
 .founder .by strong{color:var(--text);font-weight:600}
 
 /* ── CTA ── */
-.cta-band{background:var(--navy)}
+.cta-band{background:var(--bg-alt)}
 .cta-inner{max-width:640px;margin:0 auto;padding:0 2rem;text-align:center}
-.cta-band h2{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:700;letter-spacing:-0.025em;color:#fff;line-height:1.15}
-.cta-band .eyebrow{color:#5AA9FF}
-.cta-band p{color:rgba(255,255,255,0.6);margin:1rem auto 0;max-width:520px;font-size:1.05rem;line-height:1.65}
+.cta-band h2{font-size:clamp(2rem,3.5vw,2.8rem);font-weight:700;letter-spacing:-0.025em;color:var(--text);line-height:1.15}
+.cta-band p{color:var(--muted);margin:1rem auto 0;max-width:520px;font-size:1.05rem;line-height:1.65}
 .cta-band .hero-cta{margin-top:2.5rem}
-.cta-band .btn-ghost{color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.3)}
-.cta-band .btn-ghost:hover{color:#fff;border-color:#fff}
-.cta-fine{margin-top:1.25rem;font-size:0.8rem;color:rgba(255,255,255,0.3)}
+.cta-fine{margin-top:1.25rem;font-size:0.8rem;color:var(--muted);opacity:0.6}
 
 /* ═══ BUILD GUIDE ═══ */
 .guide-hero{padding:5rem 2rem 2rem;text-align:center;max-width:760px;margin:0 auto}
@@ -273,6 +270,10 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
   .hero-stats{gap:1.25rem}
   .hstat .n{font-size:1.6rem}
   .btn-primary.large{font-size:0.9rem;padding:14px 24px}
+  .feature-shot.duo img{max-width:44vw}
+  .feature-shot.duo img:last-child{max-width:48vw}
+  .feature-shot.duo img:first-child{margin-right:-8vw}
+  .hero-shot .caption{white-space:normal;text-align:center;bottom:-22px}
 }
 
 /* ── Footer ── */
@@ -483,15 +484,17 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
   </section>
 
   <!-- CTA -->
-  <section class="cta-band wrap">
-    <div class="eyebrow">Your nav station, upgraded</div>
-    <h2>The whole boat, on one screen you own.</h2>
-    <p>Free, open source, and documented step by step — from which HAT to buy to the final <code class="inline">git push</code>. If you can follow a recipe, you can build this.</p>
-    <div class="hero-cta">
-      <button class="btn btn-primary" onclick="show('guide')">Start the build guide →</button>
-      <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">Browse the repo</a>
+  <section class="cta-band">
+    <div class="cta-inner">
+      <div class="eyebrow">Your nav station, upgraded</div>
+      <h2>The whole boat, on one screen you own.</h2>
+      <p>Free, open source, and documented step by step — from which HAT to buy to the final <code class="inline">git push</code>. If you can follow a recipe, you can build this.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="show('guide')">Start the build guide →</button>
+        <a class="btn btn-ghost" href="https://github.com/fpugliano/oroboro-dashboard" target="_blank" rel="noopener">Browse the repo</a>
+      </div>
+      <div class="cta-fine">CC BY-NC 4.0 · never your only anchor watch or navigation source</div>
     </div>
-    <div class="cta-fine">CC BY-NC 4.0 · never your only anchor watch or navigation source</div>
   </section>
 </div>
 
