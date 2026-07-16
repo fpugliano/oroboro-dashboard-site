@@ -534,8 +534,10 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
       <a href="#g-n2k">NMEA 2000 · the HAT</a>
       <a href="#g-connect">How it connects</a>
       <span class="toc-sec">Software</span>
+      <a href="#g-ssh">SSH + VNC</a>
       <a href="#g-openplotter">Install OpenPlotter</a>
       <a href="#g-ip">Static IP</a>
+      <a href="#g-network">Network setup</a>
       <a href="#g-victron">Connect Victron</a>
       <a href="#g-deploy">Deploy the dashboard</a>
       <a href="#g-anchor">Anchor &amp; Guardian service</a>
@@ -656,8 +658,41 @@ panel  InfluxDB  anchor
         <p>Signal K is the translator: it reads every device on the backbone and republishes it in one common format. The dashboard, the history database, and the anchor/AIS watchdog all read from Signal K. A small <strong>WiFi router</strong> ties it together so your phone and cockpit tablet see the same panel.</p>
       </div>
 
-      <div class="step" id="g-openplotter">
+      <div class="step" id="g-ssh">
         <div class="step-n">Software · 05</div>
+        <h2>Work on the Pi from your laptop</h2>
+        <p>The touchscreen mounts on the bulkhead and the Pi hides behind it. There is no keyboard. Every command in this guide is run from your laptop over the boat's WiFi — not on the screen itself. Two tools make that possible: <strong>SSH</strong> for the terminal and <strong>VNC</strong> for the desktop when you need to see the GUI.</p>
+
+        <h3>Enable SSH and WiFi at flash time</h3>
+        <p>Before you remove the microSD card from your laptop after flashing, open <strong>Raspberry Pi Imager</strong>, click the gear icon (⚙) in the bottom-right corner, and configure:</p>
+        <ul>
+          <li><strong>Enable SSH</strong> — tick it, choose "Use password authentication"</li>
+          <li>Set a <strong>username and password</strong> (e.g. <code class="inline">pi</code> and a strong passphrase)</li>
+          <li>Configure <strong>WiFi</strong> — enter your boat router's SSID and password</li>
+        </ul>
+        <p>With those set, the Pi joins your WiFi and accepts SSH connections the moment it first boots — no keyboard, no monitor needed.</p>
+
+        <h3>Connect via SSH</h3>
+        <p>On Mac or Linux, open a terminal. Before the static IP is set, mDNS usually resolves the hostname:</p>
+        <pre>ssh pi@raspberrypi.local</pre>
+        <p>Once you have a fixed IP (next steps), use that instead:</p>
+        <pre>ssh pi@192.168.1.238</pre>
+        <p>Windows: PowerShell has <code class="inline">ssh</code> built in — same commands, no extra software needed.</p>
+
+        <h3>Enable VNC for graphical tasks</h3>
+        <p>A few tasks — kiosk browser setup, touchscreen rotation — are easier with a full desktop. Enable VNC from your SSH session:</p>
+        <pre><span class="c"># run in your SSH session on the Pi</span>
+sudo raspi-config</pre>
+        <p>Navigate to <strong>Interface Options → VNC → Enable</strong>. Then download <strong>RealVNC Viewer</strong> (free, Mac / Windows / iPad) and connect to the Pi's IP address. Use VNC when you need to see the desktop; use SSH for everything else.</p>
+
+        <div class="callout">
+          <span class="k">Every command in this guide runs in an SSH session</span>
+          <p>Open a terminal on your laptop, SSH into the Pi, and paste commands there. The touchscreen is for sailing — not for building.</p>
+        </div>
+      </div>
+
+      <div class="step" id="g-openplotter">
+        <div class="step-n">Software · 06</div>
         <h2>Install OpenPlotter</h2>
         <p>OpenPlotter is a ready-made Raspberry Pi image with Signal K already aboard — the fastest way to a working marine server. Flash it to the microSD card with Raspberry Pi Imager, boot the Pi, and you have Signal K running.</p>
         <ul>
@@ -670,13 +705,58 @@ panel  InfluxDB  anchor
       </div>
 
       <div class="step" id="g-ip">
-        <div class="step-n">Software · 06</div>
-        <h2>Give the Pi a static IP</h2>
-        <p>So the dashboard always finds the Pi at the same address, pin it down on your router (or in the Pi's network settings). Everything from here assumes a fixed address like <code class="inline">192.168.1.238</code> — use whatever your network gives you and keep it consistent.</p>
+        <div class="step-n">Software · 07</div>
+        <h2>Give the Pi (and Cerbo) a static IP</h2>
+        <p>Dashboard bookmarks, the anchor-api service, SSH shortcuts, and the Signal K → Cerbo MQTT plugin all point at a fixed address. If the IP changes after a reboot, things silently break. Fix it once now.</p>
+
+        <h3>Preferred — DHCP reservation on the router</h3>
+        <p>Log into your router's admin page (usually <code class="inline">192.168.1.1</code> or <code class="inline">192.168.0.1</code>). Find the DHCP client list, spot the Pi by hostname (<strong>raspberrypi</strong>), and reserve its current IP permanently. This survives Pi OS reinstalls and is the one place to manage network addresses. If you're not sure where to find it, search "<em>your router model</em> DHCP reservation".</p>
+
+        <h3>Fallback — static IP on the Pi itself (Raspberry Pi OS Bookworm)</h3>
+        <p>Bookworm uses NetworkManager. From your SSH session:</p>
+        <pre><span class="c"># list connections and find your WiFi connection name</span>
+nmcli con show
+<span class="c"># apply static IP — replace "preconfigured" if your connection has a different name</span>
+sudo nmcli con mod "preconfigured" ipv4.method manual ipv4.addresses 192.168.1.238/24 ipv4.gateway 192.168.1.1 ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli con up "preconfigured"</pre>
+        <p>Replace <code class="inline">192.168.1.238</code> with your chosen address and <code class="inline">192.168.1.1</code> with your router's IP.</p>
+
+        <h3>Do the same for the Cerbo GX</h3>
+        <p>Reserve the Cerbo's IP on the router too — the MQTT plugin hardcodes it. Find the Cerbo's current IP at <strong>Settings → Ethernet</strong> (or WiFi) on the Cerbo screen, then reserve that address in the router the same way.</p>
+      </div>
+
+      <div class="step" id="g-network">
+        <div class="step-n">Software · 08</div>
+        <h2>The network picture</h2>
+        <p>The router is the hub of the whole system. The Pi, the Cerbo, your phone, and any cockpit tablet must all be on the <strong>same WiFi network</strong>. The most common "no data on the dashboard" complaint comes from devices on different networks — typically the Cerbo connected to its own access point while the Pi is on boat WiFi.</p>
+        <pre class="pre-wide"> [instruments/N2K] ──CAN HAT──▶ [Raspberry Pi] ──WiFi──▶ [boat router] ◀──WiFi/eth── [Cerbo GX]
+                                                                 │
+                                      phones / tablet / laptop  (dashboard · SSH · VNC)</pre>
+        <pre class="pre-narrow">[instruments/N2K]
+       │ CAN HAT
+ [Raspberry Pi]
+       │ WiFi
+ [boat router] ◀── [Cerbo GX]
+       │
+ phones / laptop
+ (dashboard · SSH)</pre>
+        <p>Before moving on, confirm:</p>
+        <ul>
+          <li>Pi is on the boat router's WiFi ✓</li>
+          <li>Cerbo is on the same network (WiFi or wired to the router) ✓</li>
+          <li>Pi IP reserved at <code class="inline">192.168.1.238</code> (or your chosen address) ✓</li>
+          <li>Cerbo IP reserved ✓</li>
+          <li>Cerbo MQTT enabled: <strong>Settings → Services → MQTT on LAN</strong> ✓</li>
+          <li>Signal K MQTT plugin will point at the Cerbo's reserved IP (configured next step) ✓</li>
+        </ul>
+        <div class="callout">
+          <span class="k">Prefer ethernet for the Cerbo if the cable run is short</span>
+          <p>A short patch cable from the Cerbo to the router is more reliable than WiFi inside a locker. If the run is easy, do it — WiFi works fine when you can't.</p>
+        </div>
       </div>
 
       <div class="step" id="g-victron">
-        <div class="step-n">Software · 07</div>
+        <div class="step-n">Software · 09</div>
         <h2>Connect your Victron system</h2>
         <p>Victron gear doesn't speak NMEA 2000 — it has its own proprietary communication system called <strong>VE.Direct</strong>, a simple serial protocol that runs over a small cable with a dedicated plug on each Victron device (MPPT solar controllers, battery monitors, inverter/chargers). To get battery and solar data into Signal K and onto the dashboard, you need to bridge that VE.Direct data across to the Pi. There are three ways depending on what Victron hardware you already have:</p>
 
@@ -699,7 +779,7 @@ panel  InfluxDB  anchor
       </div>
 
       <div class="step" id="g-deploy">
-        <div class="step-n">Software · 08</div>
+        <div class="step-n">Software · 10</div>
         <h2>Deploy the dashboard files</h2>
         <p>The dashboard is a set of HTML files that Signal K serves. Put them in Signal K's public folder and open them in a browser. The repo's README gives the exact copy commands; the essence:</p>
         <pre><span class="c"># on the Pi — fetch each page into Signal K's public folder</span>
@@ -709,7 +789,7 @@ sudo wget -O /usr/lib/node_modules/signalk-server/public/oroboro.html \
       </div>
 
       <div class="step" id="g-anchor">
-        <div class="step-n">Software · 09</div>
+        <div class="step-n">Software · 11</div>
         <h2>Anchor &amp; Guardian background service</h2>
         <p>The anchor watch and the AIS Guardian run as a small always-on service on the Pi — <code class="inline">anchor-api.js</code> — so alarms reach your phone even when no browser is open. Install it to <code class="inline">/home/pi/anchor-api/</code> and register it with systemd so it starts on boot and restarts itself.</p>
         <pre><span class="c"># after copying anchor-api.js to the Pi</span>
@@ -719,31 +799,31 @@ sudo systemctl status anchor-api    <span class="c"># expect: active (running)</
       </div>
 
       <div class="step" id="g-history">
-        <div class="step-n">Software · 10</div>
+        <div class="step-n">Software · 12</div>
         <h2>History &amp; polar performance</h2>
         <p>For graphs over time and the sailing-performance analyzer, add <strong>InfluxDB</strong> (stores the data) and <strong>Grafana</strong> (draws the history graphs). Signal K's InfluxDB plugin logs everything; Grafana visualises it; the polar page reads back your speed-vs-wind history to score your sailing. The README covers the tokens and settings step by step.</p>
       </div>
 
       <div class="step" id="g-config">
-        <div class="step-n">Software · 11</div>
+        <div class="step-n">Software · 13</div>
         <h2>Configure your boat's specifics</h2>
         <p>One file, <code class="inline">config.js</code>, holds your boat's details — network addresses, your Pushover keys, your polar targets. It stays on the Pi and never goes into the public repo, so your secrets are yours. Set it once and the whole dashboard picks it up.</p>
       </div>
 
       <div class="step" id="g-push">
-        <div class="step-n">Software · 12</div>
+        <div class="step-n">Software · 14</div>
         <h2>Phone alarms with Pushover</h2>
         <p>Anchor-drag and Guardian alarms reach your phone via <a class="link" href="https://pushover.net" target="_blank" rel="noopener">Pushover</a> — a one-time small purchase, no subscription. Create an account, paste your user and API keys into the Pi's config, and the background service does the rest. Because the alarm is sent from the Pi, it works as long as the Pi has internet — even with your phone locked and every browser closed.</p>
       </div>
 
       <div class="step" id="g-remote">
-        <div class="step-n">Live · 13</div>
+        <div class="step-n">Live · 15</div>
         <h2>See it from anywhere</h2>
         <p>Add <strong>Tailscale</strong> (free tier) and the Pi joins a private network you can reach from your phone anywhere with signal — no port-forwarding, no exposed ports. Check your batteries from the beach, watch the anchor hold from dinner ashore. The anchor and Guardian alarms run independently on the Pi regardless, so they protect the boat whether or not you're connected.</p>
       </div>
 
       <div class="step" id="g-done">
-        <div class="step-n">Live · 14</div>
+        <div class="step-n">Live · 16</div>
         <h2>You're done — go sailing</h2>
         <p>That's the whole build: a Raspberry Pi reading your entire boat, a clean panel on any screen, a 24/7 anchor and collision watch in your pocket, and performance analysis that turns every sail into data. All of it yours, all of it free, none of it locked to anyone's cloud.</p>
         <p>Hit a snag, or built something you're proud of? <a class="link" href="https://github.com/fpugliano/oroboro-dashboard/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> — the project is alive and the fleet is growing.</p>
