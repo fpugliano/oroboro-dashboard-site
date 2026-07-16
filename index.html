@@ -560,10 +560,11 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <tr><td>Quality microSD card, 32 GB+</td><td>€10</td><td>Yes</td></tr>
           <tr><td>12 V → 5 V USB-C converter, 3 A+</td><td>€10–20</td><td>Yes</td></tr>
           <tr><td>Waveshare RS485 CAN HAT</td><td>€15–25</td><td>Yes</td></tr>
+          <tr><td>Raymarine SeaTalkNG → NMEA 2000 adapter cable (the cable you cut)</td><td>€20–25</td><td>Yes (CAN-side boats)</td></tr>
           <tr><td>Waveshare Industrial Grade Metal Case for Pi + HAT</td><td>~$15</td><td>Yes</td></tr>
           <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
           <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
-          <tr class="total"><td>Typical core build</td><td>€150–250</td><td></td></tr>
+          <tr class="total"><td>Typical core build</td><td>€170–275</td><td></td></tr>
         </table>
         <p style="font-size:14px;color:var(--muted)">All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
@@ -575,6 +576,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
         <div class="hw-grid">
           <figure class="hw-card"><img src="screenshots/hw-pi.png" alt="Raspberry Pi 4 single-board computer" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Raspberry Pi 4 / 5 — the brain</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/RS485.png" alt="Waveshare RS485 CAN HAT — stacks on the Raspberry Pi GPIO pins" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Waveshare RS485 CAN HAT — stacks on the Pi, connects to NMEA&nbsp;2000 or NMEA&nbsp;0183</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-adapter-cable.png" alt="Raymarine SeaTalkNG to NMEA 2000 DeviceNet adapter cable" onerror="this.closest('.hw-card').style.display='none'"><figcaption>SeaTalkNG → NMEA 2000 adapter — the cable you cut; both connector types in one</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/waveshare-industrial-grade-metal-case.png" alt="Waveshare industrial grade metal case for Raspberry Pi with HAT" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Waveshare industrial metal case — fits Pi + RS485 HAT, ~$15 on Amazon</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-converter.png" alt="12V to 5V USB-C step-down converter" onerror="this.closest('.hw-card').style.display='none'"><figcaption>12 V → 5 V converter — boat power to Pi power</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-display.png" alt="Official Raspberry Pi 7-inch touchscreen display" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Official Pi 7″ touchscreen — the nav-station panel</figcaption></figure>
@@ -595,7 +597,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
 
         <h3>Modern boat (NMEA 2000 or Raymarine SeaTalkNG) — use the CAN side</h3>
         <p>If your instruments are connected via a backbone cable with T-connectors — that's NMEA 2000 (or Raymarine's version of it, SeaTalkNG, which is electrically identical). Use the <strong>H and L terminals</strong> on the HAT.</p>
-        <p>Cut a drop cable from your backbone. Connect two wires:</p>
+        <p>The easiest cable to buy is a <strong>Raymarine SeaTalkNG → NMEA 2000 adapter</strong> (e.g. A06045 / A06075 type, ~€20–25). It has a SeaTalkNG plug on one end and a DeviceNet male on the other — so one purchase covers both backbone types: plug whichever end fits your backbone into a spare T-connector, cut the cable in the middle, and wire the cut end's two data wires to the HAT. The unused half is a spare. Connect two wires:</p>
         <pre><span class="c"># SeaTalkNG / NMEA 2000 drop cable → CAN side of the HAT</span>
 white  →  H terminal
 blue   →  L terminal
