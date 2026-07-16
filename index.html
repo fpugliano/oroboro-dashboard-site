@@ -541,11 +541,13 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
       <a href="#g-victron">Connect Victron</a>
       <a href="#g-deploy">Deploy the dashboard</a>
       <a href="#g-anchor">Anchor &amp; Guardian service</a>
+      <a href="#g-buzzer">External buzzer</a>
       <a href="#g-history">History &amp; polars</a>
       <a href="#g-config">Boat specifics</a>
       <a href="#g-push">Phone alarms</a>
       <span class="toc-sec">Live</span>
       <a href="#g-remote">Remote access</a>
+      <a href="#g-faq">FAQ</a>
       <a href="#g-done">You're done</a>
     </nav>
 
@@ -566,7 +568,9 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <tr><td>Waveshare Industrial Grade Metal Case for Pi + HAT</td><td>~$15</td><td>Yes</td></tr>
           <tr><td>4G/LTE WiFi router + data SIM</td><td>€50–150</td><td>For remote alarms</td></tr>
           <tr><td>Cockpit HDMI touchscreen, 7–9″</td><td>€60–120</td><td>Optional</td></tr>
-          <tr class="total"><td>Typical core build</td><td>€170–275</td><td></td></tr>
+          <tr><td>12 V piezo siren (continuous tone, ≥100 dB)</td><td>€8–15</td><td>Optional</td></tr>
+          <tr><td>5 V relay module (or MOSFET board)</td><td>€5</td><td>Optional</td></tr>
+          <tr class="total"><td>Typical core build (optional items excluded)</td><td>€170–275</td><td></td></tr>
         </table>
         <p style="font-size:14px;color:var(--muted)">All software — OpenPlotter, Signal K, InfluxDB, Grafana, Tailscale, this dashboard — is free.</p>
       </div>
@@ -584,6 +588,7 @@ code.inline{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:0.85em;
           <figure class="hw-card"><img src="screenshots/hw-display.png" alt="Official Raspberry Pi 7-inch touchscreen display" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Official Pi 7″ touchscreen — the nav-station panel</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-n2k-wiring.jpg" alt="NMEA 2000 drop cable cut open with white and blue data wires connected to the CAN HAT terminals" onerror="this.closest('.hw-card').style.display='none'"><figcaption>The wiring — white to CAN-H, blue to CAN-L</figcaption></figure>
           <figure class="hw-card"><img src="screenshots/hw-cerbo.png" alt="Victron Cerbo GX connected alongside the Raspberry Pi" onerror="this.closest('.hw-card').style.display='none'"><figcaption>Victron Cerbo GX — bridges battery &amp; solar data</figcaption></figure>
+          <figure class="hw-card"><img src="screenshots/hw-buzzer.png" alt="12 V piezo siren for external anchor alarm" onerror="this.closest('.hw-card').style.display='none'"><figcaption>12 V piezo buzzer — wakes you when the anchor drags, even with every phone dead</figcaption></figure>
         </div>
         <p>One thing easily forgotten: you need a <strong>case</strong>. Standard Pi cases won't fit once the RS485 HAT is stacked on top — the board sticks up too high. The <strong>Waveshare Industrial Grade Metal Case</strong> (~$15 on Amazon) is designed with enough internal clearance to fit the Pi with a HAT stacked on top, protects the electronics in a marine environment, and looks tidy in a nav station. Search Amazon for "Waveshare industrial metal case Raspberry Pi."</p>
         <p>The single decision that trips people up is the instrument interface, because it depends on how old your boat's electronics are. That's the next step.</p>
@@ -798,32 +803,99 @@ sudo systemctl status anchor-api    <span class="c"># expect: active (running)</
         <p>This service is what makes the safety features real: it watches your swing and every AIS vessel around you 24/7, and pushes alarms whether you're at the helm, asleep, or ashore.</p>
       </div>
 
+      <div class="step" id="g-buzzer">
+        <div class="step-n">Software · 12 · Optional</div>
+        <h2>External anchor alarm buzzer</h2>
+        <p>Phone alarms fail when you most need them: dead battery, silent mode, left in the cockpit, forgotten below. A 12 V piezo siren wired to the Pi wakes the crew <em>regardless</em> — a physical alarm inside the boat that sounds whether any phone is charged or not. It runs off the same 24/7 anchor-api service, needs no browser open, and costs around €15.</p>
+
+        <h3>Parts</h3>
+        <ul>
+          <li><strong>12 V piezo siren, continuous tone, ≥100 dB</strong> — ~€8–15</li>
+          <li><strong>5 V relay module</strong> (or MOSFET board) — ~€5</li>
+        </ul>
+        <div class="callout warn">
+          <span class="k">Buying advice</span>
+          <p>Cheap listings often quote dB at 10 cm, not 1 m — a "90 dB" mini buzzer can be barely audible through a cabin door. For wake-from-sleep duty aim for a piezo <strong>siren</strong> rated ≥100 dB, and mount it inside the cabin near the berth. You want <strong>continuous tone</strong> specifically — the software generates the beep patterns on top of it.</p>
+        </div>
+
+        <h3>Wiring</h3>
+        <pre class="pre-wide"><span class="c"># GPIO HIGH = relay closes = buzzer sounds</span>
+Pi BCM 17 (pin 11) ──▶ relay IN
+Relay NO            ──▶ buzzer + (switched by relay)
+12 V +              ──▶ relay COM
+Buzzer −            ──▶ 12 V GND</pre>
+        <pre class="pre-narrow"><span class="c"># GPIO HIGH = sounding</span>
+Pi BCM 17 ──▶ relay IN
+Relay NO  ──▶ buzzer +
+12 V +    ──▶ relay COM
+Buzzer −  ──▶ 12 V GND</pre>
+        <p>Use any 3.3 V-compatible 5 V relay module (HiLetgo SRD-05VDC-SL-C or equivalent). The relay switches the 12 V circuit; the Pi GPIO only sees a low-voltage control signal. Full wiring and GPIO permissions setup are in the <a class="link" href="https://github.com/fpugliano/oroboro-dashboard/blob/main/README.md" target="_blank" rel="noopener">repo README</a>.</p>
+
+        <h3>Alarm behaviour</h3>
+        <p>The software generates distinct patterns so you know at a glance why it's sounding:</p>
+        <ul>
+          <li><strong>Anchor drag or GPS loss</strong> — urgent 3 × 150 ms bursts + 700 ms pause, loops until silenced</li>
+          <li><strong>Guardian zone breach</strong> — slow 800 ms on / 800 ms off</li>
+          <li><strong>Both active at once</strong> — drag pattern wins</li>
+        </ul>
+        <p>While the buzzer is sounding, a large <strong>SILENCE</strong> button appears on the anchor page. Pressing it stops the sound immediately — the visual alarm (red banner) stays active. The buzzer re-arms automatically after <code class="inline">rearmSeconds</code> (default 30 s), and re-arms immediately if the drag distance gets worse. Pushover phone notifications continue independently whether the buzzer is silenced or not.</p>
+
+        <h3>Configuration</h3>
+        <pre><span class="c"># /home/pi/anchor-api/anchor-api-config.json</span>
+"buzzer": {
+  "enabled": false,        <span class="c">// set to true to activate</span>
+  "gpioPin": 17,           <span class="c">// BCM pin (physical pin 11)</span>
+  "rearmSeconds": 30,      <span class="c">// seconds until buzzer re-arms after Silence</span>
+  "rearmOnWorsening": true <span class="c">// re-arm immediately if drag distance increases</span>
+}</pre>
+        <p>The feature is off by default — existing installs without a buzzer are unaffected. After editing the config, restart the service:</p>
+        <pre>sudo systemctl restart anchor-api
+sudo journalctl -u anchor-api -n 10 <span class="c"># look for: [buzzer] GPIO BCM17 ready</span></pre>
+
+        <div class="callout">
+          <span class="k">Test before you trust it</span>
+          <p>Settings → Alarms has a <strong>Test buzzer</strong> button — it plays the drag pattern for 3 s. Run the test the afternoon before your first night at anchor with it enabled. Better yet: do a while-you're-asleep drill with a crew member watching. An alarm you've never heard is an alarm you won't trust.</p>
+        </div>
+      </div>
+
       <div class="step" id="g-history">
-        <div class="step-n">Software · 12</div>
+        <div class="step-n">Software · 13</div>
         <h2>History &amp; polar performance</h2>
         <p>For graphs over time and the sailing-performance analyzer, add <strong>InfluxDB</strong> (stores the data) and <strong>Grafana</strong> (draws the history graphs). Signal K's InfluxDB plugin logs everything; Grafana visualises it; the polar page reads back your speed-vs-wind history to score your sailing. The README covers the tokens and settings step by step.</p>
       </div>
 
       <div class="step" id="g-config">
-        <div class="step-n">Software · 13</div>
+        <div class="step-n">Software · 14</div>
         <h2>Configure your boat's specifics</h2>
         <p>One file, <code class="inline">config.js</code>, holds your boat's details — network addresses, your Pushover keys, your polar targets. It stays on the Pi and never goes into the public repo, so your secrets are yours. Set it once and the whole dashboard picks it up.</p>
       </div>
 
       <div class="step" id="g-push">
-        <div class="step-n">Software · 14</div>
+        <div class="step-n">Software · 15</div>
         <h2>Phone alarms with Pushover</h2>
         <p>Anchor-drag and Guardian alarms reach your phone via <a class="link" href="https://pushover.net" target="_blank" rel="noopener">Pushover</a> — a one-time small purchase, no subscription. Create an account, paste your user and API keys into the Pi's config, and the background service does the rest. Because the alarm is sent from the Pi, it works as long as the Pi has internet — even with your phone locked and every browser closed.</p>
       </div>
 
       <div class="step" id="g-remote">
-        <div class="step-n">Live · 15</div>
+        <div class="step-n">Live · 16</div>
         <h2>See it from anywhere</h2>
         <p>Add <strong>Tailscale</strong> (free tier) and the Pi joins a private network you can reach from your phone anywhere with signal — no port-forwarding, no exposed ports. Check your batteries from the beach, watch the anchor hold from dinner ashore. The anchor and Guardian alarms run independently on the Pi regardless, so they protect the boat whether or not you're connected.</p>
       </div>
 
+      <div class="step" id="g-faq">
+        <div class="step-n">Live · 17</div>
+        <h2>Frequently asked questions</h2>
+
+        <h3>Why a Raspberry Pi and not an ESP32?</h3>
+        <p>An ESP32 (even with SD-card logging) is a great NMEA-to-WiFi bridge: live gauges on your phone, a track log, even a basic anchor alarm — cheaper, lower power, and if that's all you need there are ready-made projects for it. What an ESP32 can't be is the boat's <em>computer</em>. Signal K's plugin ecosystem, InfluxDB + Grafana history you can actually query ("show me wind and battery voltage overnight"), Tailscale remote access, and a wall-mounted touchscreen kiosk all need Linux. Two different products for two different jobs — this guide is for the second one.</p>
+        <p>They coexist happily. ESP32s make great cheap sensor nodes — tank senders, bilge monitors, temperature probes — feeding data into Signal K over WiFi via <a class="link" href="https://signalk.org/SensESP/" target="_blank" rel="noopener">SensESP</a>. The Pi is the hub; tiny microcontrollers are the leaves.</p>
+
+        <h3>Can I skip the buzzer — is the phone alarm enough?</h3>
+        <p>For many sailors, yes. Pushover is reliable and reaches you ashore. Skip the buzzer until you've used the system for a season and decided you want the extra assurance. The case for adding it is simple: phones die, go silent, get left in the cockpit. A buzzer inside the cabin is the backup that doesn't depend on anyone's battery. See <a class="link" href="#g-buzzer">External anchor alarm buzzer</a> above for parts, wiring, and configuration.</p>
+      </div>
+
       <div class="step" id="g-done">
-        <div class="step-n">Live · 16</div>
+        <div class="step-n">Live · 18</div>
         <h2>You're done — go sailing</h2>
         <p>That's the whole build: a Raspberry Pi reading your entire boat, a clean panel on any screen, a 24/7 anchor and collision watch in your pocket, and performance analysis that turns every sail into data. All of it yours, all of it free, none of it locked to anyone's cloud.</p>
         <p>Hit a snag, or built something you're proud of? <a class="link" href="https://github.com/fpugliano/oroboro-dashboard/issues" target="_blank" rel="noopener">Open an issue on GitHub</a> — the project is alive and the fleet is growing.</p>
